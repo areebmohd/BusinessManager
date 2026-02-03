@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { subscribeToItems, subscribeToSales, subscribeToSettings } from '../../services/FirestoreService';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -51,78 +52,80 @@ const DashboardScreen = ({ navigation }) => {
     }
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.header}>Business Dashboard</Text>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+            <ScrollView style={styles.container}>
+                <Text style={styles.header}>Business Dashboard</Text>
 
-            {/* Summary Cards */}
-            <View style={styles.statsGrid}>
-                <View style={[styles.card, { backgroundColor: '#e3f2fd' }]}>
-                    <Text style={styles.cardLabel}>Total Revenue</Text>
-                    <Text style={[styles.cardValue, { color: '#0d47a1' }]}>₹{totalRevenue}</Text>
-                </View>
-                <View style={[styles.card, { backgroundColor: '#e8f5e9' }]}>
-                    <Text style={styles.cardLabel}>Inventory Value</Text>
-                    <Text style={[styles.cardValue, { color: '#1b5e20' }]}>₹{inventoryValue}</Text>
-                </View>
-                <View style={[styles.card, { backgroundColor: '#fff3e0' }]}>
-                    <Text style={styles.cardLabel}>Total Sales</Text>
-                    <Text style={[styles.cardValue, { color: '#e65100' }]}>{totalSalesCount}</Text>
-                </View>
-                <View style={[styles.card, { backgroundColor: '#ffebee' }]}>
-                    <Text style={styles.cardLabel}>Low Stock Items</Text>
-                    <Text style={[styles.cardValue, { color: '#b71c1c' }]}>{lowStockItems.length}</Text>
-                </View>
-            </View>
-
-            {/* Low Stock Warning */}
-            {lowStockItems.length > 0 && (
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <MaterialIcons name="warning" size={24} color="#d32f2f" />
-                        <Text style={styles.sectionTitle}>Low Stock Alerts</Text>
+                {/* Summary Cards */}
+                <View style={styles.statsGrid}>
+                    <View style={[styles.card, { backgroundColor: '#e3f2fd' }]}>
+                        <Text style={styles.cardLabel}>Total Revenue</Text>
+                        <Text style={[styles.cardValue, { color: '#0d47a1' }]}>₹{totalRevenue}</Text>
                     </View>
-                    {lowStockItems.map(item => (
-                        <View key={item.id} style={styles.listItem}>
-                            <Text style={styles.itemName}>{item.name}</Text>
-                            <Text style={styles.stockWarn}>Only {item.stock} left</Text>
+                    <View style={[styles.card, { backgroundColor: '#e8f5e9' }]}>
+                        <Text style={styles.cardLabel}>Inventory Value</Text>
+                        <Text style={[styles.cardValue, { color: '#1b5e20' }]}>₹{inventoryValue}</Text>
+                    </View>
+                    <View style={[styles.card, { backgroundColor: '#fff3e0' }]}>
+                        <Text style={styles.cardLabel}>Total Sales</Text>
+                        <Text style={[styles.cardValue, { color: '#e65100' }]}>{totalSalesCount}</Text>
+                    </View>
+                    <View style={[styles.card, { backgroundColor: '#ffebee' }]}>
+                        <Text style={styles.cardLabel}>Low Stock Items</Text>
+                        <Text style={[styles.cardValue, { color: '#b71c1c' }]}>{lowStockItems.length}</Text>
+                    </View>
+                </View>
+
+                {/* Low Stock Warning */}
+                {lowStockItems.length > 0 && (
+                    <View style={styles.section}>
+                        <View style={styles.sectionHeader}>
+                            <MaterialIcons name="warning" size={24} color="#d32f2f" />
+                            <Text style={styles.sectionTitle}>Low Stock Alerts</Text>
+                        </View>
+                        {lowStockItems.map(item => (
+                            <View key={item.id} style={styles.listItem}>
+                                <Text style={styles.itemName}>{item.name}</Text>
+                                <Text style={styles.stockWarn}>Only {item.stock} left</Text>
+                            </View>
+                        ))}
+                    </View>
+                )}
+
+                {/* Recent Sales */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Recent Sales</Text>
+                    {recentSales.map(sale => (
+                        <View key={sale.id} style={styles.listItem}>
+                            <View>
+                                <Text style={styles.itemName}>{sale.itemName}</Text>
+                                <Text style={styles.saleDate}>
+                                    {sale.timestamp?.toDate ? sale.timestamp.toDate().toLocaleDateString() : 'Just now'}
+                                </Text>
+                            </View>
+                            <View style={{ alignItems: 'flex-end' }}>
+                                <Text style={styles.saleAmount}>₹{sale.total}</Text>
+                                <Text style={[styles.status,
+                                sale.paymentMethod === 'paid' ? styles.statusPaid :
+                                    sale.paymentMethod === 'unpaid' ? styles.statusUnpaid : null
+                                ]}>
+                                    {sale.paymentMethod === 'paid' ? 'PAID' : 'UNPAID'}
+                                </Text>
+                            </View>
                         </View>
                     ))}
+                    {recentSales.length === 0 && (
+                        <Text style={{ color: '#aaa', fontStyle: 'italic' }}>No sales yet.</Text>
+                    )}
                 </View>
-            )}
 
-            {/* Recent Sales */}
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Recent Sales</Text>
-                {recentSales.map(sale => (
-                    <View key={sale.id} style={styles.listItem}>
-                        <View>
-                            <Text style={styles.itemName}>{sale.itemName}</Text>
-                            <Text style={styles.saleDate}>
-                                {sale.timestamp?.toDate ? sale.timestamp.toDate().toLocaleDateString() : 'Just now'}
-                            </Text>
-                        </View>
-                        <View style={{ alignItems: 'flex-end' }}>
-                            <Text style={styles.saleAmount}>₹{sale.total}</Text>
-                            <Text style={[styles.status,
-                            sale.paymentMethod === 'paid' ? styles.statusPaid :
-                                sale.paymentMethod === 'unpaid' ? styles.statusUnpaid : null
-                            ]}>
-                                {sale.paymentMethod === 'paid' ? 'PAID' : 'UNPAID'}
-                            </Text>
-                        </View>
-                    </View>
-                ))}
-                {recentSales.length === 0 && (
-                    <Text style={{ color: '#aaa', fontStyle: 'italic' }}>No sales yet.</Text>
-                )}
-            </View>
-
-        </ScrollView>
+            </ScrollView>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f5f5', padding: 15 },
+    container: { flex: 1, backgroundColor: '#f5f5f5', padding: 20, paddingTop: 10 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     header: { fontSize: 26, fontWeight: 'bold', marginBottom: 20, color: '#333' },
     statsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 20 },

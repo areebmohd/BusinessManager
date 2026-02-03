@@ -10,7 +10,15 @@ const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
     return (
-        <Tab.Navigator screenOptions={{ headerShown: false, tabBarActiveTintColor: '#007bff' }}>
+        <Tab.Navigator screenOptions={{
+            headerShown: false,
+            tabBarActiveTintColor: '#007bff',
+            tabBarStyle: {
+                height: 65,
+                paddingTop: 5,
+                paddingBottom: 10,
+            }
+        }}>
             <Tab.Screen
                 name="Dashboard"
                 component={DashboardScreen}

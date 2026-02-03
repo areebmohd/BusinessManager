@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useMemo } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { subscribeToItems } from '../../services/FirestoreService';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -7,7 +8,16 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const InventoryScreen = ({ navigation }) => {
     const { user } = useAuth();
     const [items, setItems] = useState([]);
+    const [filteredItems, setFilteredItems] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
+    const [selectedCategory, setSelectedCategory] = useState('All');
+
+    // Extract unique categories from items
+    const categories = useMemo(() => {
+        const uniqueCategories = [...new Set(items.map(item => item.category || 'Uncategorized'))];
+        return ['All', ...uniqueCategories.sort()];
+    }, [items]);
 
     useEffect(() => {
         if (!user) return;
@@ -16,6 +26,7 @@ const InventoryScreen = ({ navigation }) => {
             user.uid,
             (fetchedItems) => {
                 setItems(fetchedItems);
+                setFilteredItems(fetchedItems);
                 setLoading(false);
             },
             (error) => {
@@ -26,6 +37,28 @@ const InventoryScreen = ({ navigation }) => {
 
         return () => unsubscribe();
     }, [user]);
+
+    useEffect(() => {
+        let result = items;
+
+        // Filter by Category
+        if (selectedCategory !== 'All') {
+            result = result.filter(item =>
+                (item.category || 'Uncategorized') === selectedCategory
+            );
+        }
+
+        // Filter by Search Query
+        if (searchQuery) {
+            const lowerQuery = searchQuery.toLowerCase();
+            result = result.filter(item =>
+                item.name.toLowerCase().includes(lowerQuery) ||
+                (item.category && item.category.toLowerCase().includes(lowerQuery))
+            );
+        }
+
+        setFilteredItems(result);
+    }, [searchQuery, items, selectedCategory]);
 
     const renderItem = ({ item }) => (
         <TouchableOpacity
@@ -56,7 +89,53 @@ const InventoryScreen = ({ navigation }) => {
     }
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
+            <Text style={styles.header}>Inventory</Text>
+
+            {/* Search Bar */}
+            <View style={styles.searchContainer}>
+                <MaterialIcons name="search" size={24} color="#777" />
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search items..."
+                    placeholderTextColor="#999"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
+                {searchQuery.length > 0 && (
+                    <TouchableOpacity onPress={() => setSearchQuery('')}>
+                        <MaterialIcons name="close" size={20} color="#777" />
+                    </TouchableOpacity>
+                )}
+            </View>
+
+            {/* Category Chips */}
+            <View style={styles.categoriesContainer}>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.categoriesContent}
+                >
+                    {categories.map((category) => (
+                        <TouchableOpacity
+                            key={category}
+                            style={[
+                                styles.categoryChip,
+                                selectedCategory === category && styles.categoryChipSelected
+                            ]}
+                            onPress={() => setSelectedCategory(category)}
+                        >
+                            <Text style={[
+                                styles.categoryChipText,
+                                selectedCategory === category && styles.categoryChipTextSelected
+                            ]}>
+                                {category}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            </View>
+
             {items.length === 0 ? (
                 <View style={styles.centerContainer}>
                     <Text style={styles.emptyText}>No items in inventory.</Text>
@@ -64,7 +143,7 @@ const InventoryScreen = ({ navigation }) => {
                 </View>
             ) : (
                 <FlatList
-                    data={items}
+                    data={filteredItems}
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}
                     contentContainerStyle={styles.listContent}
@@ -78,7 +157,7 @@ const InventoryScreen = ({ navigation }) => {
             >
                 <MaterialIcons name="add" size={30} color="#fff" />
             </TouchableOpacity>
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -86,6 +165,58 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
+        padding: 20,
+        paddingTop: 10,
+    },
+    header: {
+        fontSize: 26,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        color: '#333',
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        elevation: 1,
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: 10,
+        fontSize: 16,
+        color: '#333',
+        paddingVertical: 5,
+    },
+    categoriesContainer: {
+        marginBottom: 10,
+    },
+    categoriesContent: {
+        paddingVertical: 5,
+        paddingRight: 10,
+    },
+    categoryChip: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        backgroundColor: '#e0e0e0',
+        marginRight: 10,
+    },
+    categoryChipSelected: {
+        backgroundColor: '#007bff',
+    },
+    categoryChipText: {
+        fontSize: 14,
+        color: '#333',
+        fontWeight: '500',
+    },
+    categoryChipTextSelected: {
+        color: '#fff',
     },
     centerContainer: {
         flex: 1,
@@ -93,15 +224,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     listContent: {
-        padding: 10,
-        paddingBottom: 80, // Space for FAB
+        padding: 1,
+        paddingBottom: 80,
     },
     card: {
         backgroundColor: '#fff',
         borderRadius: 8,
         padding: 15,
         marginBottom: 10,
-        elevation: 2, // Shadow for Android
+        elevation: 2,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,

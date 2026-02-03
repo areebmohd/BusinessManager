@@ -14,7 +14,7 @@ const InventoryNavigator = () => {
             <Stack.Screen
                 name="InventoryList"
                 component={InventoryScreen}
-                options={{ title: 'Inventory' }}
+                options={{ title: 'Inventory', headerShown: false }}
             />
             <Stack.Screen
                 name="AddItem"

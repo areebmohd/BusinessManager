@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { saveSettings, subscribeToSettings } from '../../services/FirestoreService';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -49,41 +50,43 @@ const SettingsScreen = () => {
     }
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.header}>Settings</Text>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+            <ScrollView style={styles.container}>
+                <Text style={styles.header}>Settings</Text>
 
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Business Details</Text>
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Business Details</Text>
 
-                <Text style={styles.label}>Low Stock Warning Limit</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="5"
-                    keyboardType="numeric"
-                    value={lowStockLimit}
-                    onChangeText={setLowStockLimit}
-                />
+                    <Text style={styles.label}>Low Stock Warning Limit</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="5"
+                        keyboardType="numeric"
+                        value={lowStockLimit}
+                        onChangeText={setLowStockLimit}
+                    />
 
-                <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                    <Text style={styles.saveText}>Save Changes</Text>
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                        <Text style={styles.saveText}>Save Changes</Text>
+                    </TouchableOpacity>
+                </View>
 
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Account</Text>
-                <Text style={styles.infoText}>Logged in as: {user?.phoneNumber}</Text>
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Account</Text>
+                    <Text style={styles.infoText}>Logged in as: {user?.phoneNumber}</Text>
 
-                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                    <MaterialIcons name="logout" size={20} color="#fff" />
-                    <Text style={styles.logoutText}>Logout</Text>
-                </TouchableOpacity>
-            </View>
-        </ScrollView>
+                    <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                        <MaterialIcons name="logout" size={20} color="#fff" />
+                        <Text style={styles.logoutText}>Logout</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f5f5', padding: 20 },
+    container: { flex: 1, backgroundColor: '#f5f5f5', padding: 20, paddingTop: 10 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     header: { fontSize: 28, fontWeight: 'bold', marginBottom: 20, color: '#333' },
     section: { backgroundColor: '#fff', borderRadius: 10, padding: 15, marginBottom: 20, elevation: 2 },

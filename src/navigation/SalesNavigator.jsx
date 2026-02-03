@@ -11,7 +11,7 @@ const SalesNavigator = () => {
             <Stack.Screen
                 name="SalesHistory"
                 component={SalesScreen}
-                options={{ title: 'Sales History' }}
+                options={{ title: 'Sales History', headerShown: false }}
             />
             <Stack.Screen
                 name="CreateSale"

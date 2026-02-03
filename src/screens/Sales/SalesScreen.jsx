@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { subscribeToSales } from '../../services/FirestoreService';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -48,7 +49,8 @@ const SalesScreen = ({ navigation }) => {
     );
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
+            <Text style={styles.header}>Sales History</Text>
             {loading ? (
                 <ActivityIndicator size="large" color="#007bff" style={{ marginTop: 20 }} />
             ) : (
@@ -56,7 +58,7 @@ const SalesScreen = ({ navigation }) => {
                     data={sales}
                     keyExtractor={item => item.id}
                     renderItem={renderItem}
-                    contentContainerStyle={{ padding: 10, paddingBottom: 80 }}
+                    contentContainerStyle={{ padding: 1, paddingBottom: 80 }}
                     ListEmptyComponent={
                         <View style={styles.center}>
                             <Text style={styles.emptyText}>No sales recorded yet.</Text>
@@ -72,12 +74,13 @@ const SalesScreen = ({ navigation }) => {
             >
                 <MaterialIcons name="add" size={30} color="#fff" />
             </TouchableOpacity>
-        </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f5f5' },
+    container: { flex: 1, backgroundColor: '#f5f5f5', padding: 20, paddingTop: 10 },
+    header: { fontSize: 26, fontWeight: 'bold', marginBottom: 20, color: '#333' },
     center: { alignItems: 'center', marginTop: 50 },
     card: {
         backgroundColor: '#fff',
