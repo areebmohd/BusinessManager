@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { subscribeToSales } from '../../services/FirestoreService';
@@ -8,6 +8,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const SalesScreen = ({ navigation }) => {
     const { user } = useAuth();
     const [sales, setSales] = useState([]);
+    const [filteredSales, setFilteredSales] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -15,6 +17,7 @@ const SalesScreen = ({ navigation }) => {
         const unsubscribe = subscribeToSales(user.uid,
             (data) => {
                 setSales(data);
+                setFilteredSales(data);
                 setLoading(false);
             },
             (error) => {
@@ -24,6 +27,19 @@ const SalesScreen = ({ navigation }) => {
         );
         return () => unsubscribe();
     }, [user]);
+
+    useEffect(() => {
+        if (!searchQuery) {
+            setFilteredSales(sales);
+        } else {
+            const lowerQuery = searchQuery.toLowerCase();
+            const filtered = sales.filter(item =>
+                item.itemName.toLowerCase().includes(lowerQuery) ||
+                item.total.toString().includes(lowerQuery)
+            );
+            setFilteredSales(filtered);
+        }
+    }, [searchQuery, sales]);
 
     const renderItem = ({ item }) => (
         <View style={styles.card}>
@@ -51,17 +67,35 @@ const SalesScreen = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.header}>Sales History</Text>
+
+            {/* Search Bar */}
+            <View style={styles.searchContainer}>
+                <MaterialIcons name="search" size={24} color="#777" />
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search by Item or Price..."
+                    placeholderTextColor="#999"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
+                {searchQuery.length > 0 && (
+                    <TouchableOpacity onPress={() => setSearchQuery('')}>
+                        <MaterialIcons name="close" size={20} color="#777" />
+                    </TouchableOpacity>
+                )}
+            </View>
+
             {loading ? (
                 <ActivityIndicator size="large" color="#007bff" style={{ marginTop: 20 }} />
             ) : (
                 <FlatList
-                    data={sales}
+                    data={filteredSales}
                     keyExtractor={item => item.id}
                     renderItem={renderItem}
                     contentContainerStyle={{ padding: 1, paddingBottom: 80 }}
                     ListEmptyComponent={
                         <View style={styles.center}>
-                            <Text style={styles.emptyText}>No sales recorded yet.</Text>
+                            <Text style={styles.emptyText}>{searchQuery ? "No sales found matching your search." : "No sales recorded yet."}</Text>
                         </View>
                     }
                 />
@@ -81,6 +115,25 @@ const SalesScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f5f5f5', padding: 20, paddingTop: 10 },
     header: { fontSize: 26, fontWeight: 'bold', marginBottom: 20, color: '#333' },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        elevation: 1,
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: 10,
+        fontSize: 16,
+        color: '#333',
+        paddingVertical: 5,
+    },
     center: { alignItems: 'center', marginTop: 50 },
     card: {
         backgroundColor: '#fff',
