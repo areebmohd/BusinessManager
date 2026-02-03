@@ -32,6 +32,7 @@ const AddItemScreen = ({ navigation }) => {
                 sellingPrice: parseFloat(formData.sellingPrice),
                 costPrice: parseFloat(formData.costPrice) || 0,
                 stock: parseInt(formData.stock),
+                initialStock: parseInt(formData.stock),
                 category: formData.category,
                 barcode: formData.barcode
             });

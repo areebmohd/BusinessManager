@@ -59,6 +59,33 @@ const ItemDetailScreen = ({ route, navigation }) => {
                             {item.stock} units
                         </Text>
                     </View>
+                    {item.initialStock !== undefined && (
+                        <>
+                            <View style={styles.divider} />
+                            <View style={styles.detailRow}>
+                                <Text style={styles.label}>Initial Stock</Text>
+                                <Text style={styles.value}>{item.initialStock} units</Text>
+                            </View>
+                        </>
+                    )}
+                    <View style={styles.divider} />
+                    <View style={styles.detailRow}>
+                        <Text style={styles.label}>Added On</Text>
+                        <Text style={styles.value}>
+                            {item.createdAt?.toDate
+                                ? item.createdAt.toDate().toLocaleDateString()
+                                : 'Unknown'}
+                        </Text>
+                    </View>
+                    {item.barcode ? (
+                        <>
+                            <View style={styles.divider} />
+                            <View style={styles.detailRow}>
+                                <Text style={styles.label}>Barcode</Text>
+                                <Text style={styles.value}>{item.barcode}</Text>
+                            </View>
+                        </>
+                    ) : null}
                 </View>
 
                 {item.description ? (
