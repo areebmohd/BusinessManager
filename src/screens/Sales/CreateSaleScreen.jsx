@@ -197,7 +197,7 @@ const CreateSaleScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f5f5f5' },
-    searchSection: { padding: 15, paddingBottom: 10, backgroundColor: '#fff', elevation: 2 },
+    searchSection: { padding: 15, paddingBottom: 10, backgroundColor: '#f5f5f5'},
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
     },
 
-    listContent: { padding: 15, paddingBottom: 10 },
+    listContent: { padding: 15, paddingBottom: 10, paddingTop: 0 },
     itemCard: {
         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
         backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 10,

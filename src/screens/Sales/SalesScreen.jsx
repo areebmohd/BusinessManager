@@ -33,36 +33,69 @@ const SalesScreen = ({ navigation }) => {
             setFilteredSales(sales);
         } else {
             const lowerQuery = searchQuery.toLowerCase();
-            const filtered = sales.filter(item =>
-                item.itemName.toLowerCase().includes(lowerQuery) ||
-                item.total.toString().includes(lowerQuery)
-            );
+            const filtered = sales.filter(item => {
+                // Check total amount match
+                const total = item.totalAmount || item.total;
+                if (total && total.toString().includes(lowerQuery)) return true;
+
+                // Check item name match
+                if (item.items && Array.isArray(item.items)) {
+                    // New format: Search inside items array
+                    return item.items.some(i => i.itemName.toLowerCase().includes(lowerQuery));
+                } else {
+                    // Old format: Check single itemName
+                    return item.itemName && item.itemName.toLowerCase().includes(lowerQuery);
+                }
+            });
             setFilteredSales(filtered);
         }
     }, [searchQuery, sales]);
 
-    const renderItem = ({ item }) => (
-        <View style={styles.card}>
-            <View style={styles.row}>
-                <Text style={styles.itemName}>{item.itemName}</Text>
-                <Text style={styles.amount}>₹{item.total}</Text>
+    const renderItem = ({ item }) => {
+        const isGrouped = item.items && Array.isArray(item.items);
+        const total = isGrouped ? item.totalAmount : item.total;
+
+        // Format date
+        const dateStr = item.timestamp?.toDate ? item.timestamp.toDate().toLocaleString() : 'Just now';
+
+        return (
+            <View style={styles.card}>
+                <View style={styles.row}>
+                    <View style={{ flex: 1 }}>
+                        {isGrouped ? (
+                            // New Format: List items
+                            <View>
+                                {item.items.map((subItem, index) => (
+                                    <Text key={index} style={styles.itemName}>
+                                        {subItem.itemName} <Text style={styles.details}>(x{subItem.quantity})</Text>
+                                    </Text>
+                                ))}
+                            </View>
+                        ) : (
+                            // Old Format: Single item
+                            <Text style={styles.itemName}>{item.itemName}</Text>
+                        )}
+                    </View>
+                    <Text style={styles.amount}>₹{total}</Text>
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.details}>
+                        {isGrouped ? `${item.items.length} Items` : `${item.quantity} x ₹{item.unitPrice}`}
+                    </Text>
+                    <Text style={[styles.paymentMethod,
+                    item.paymentMethod === 'paid' ? styles.cash :
+                        item.paymentMethod === 'unpaid' ? styles.unpaid : styles.upi
+                    ]}>
+                        {item.paymentMethod === 'paid' ? 'PAID' :
+                            item.paymentMethod === 'unpaid' ? 'NOT PAID' :
+                                item.paymentMethod ? item.paymentMethod.toUpperCase() : 'UNKNOWN'}
+                    </Text>
+                </View>
+                <Text style={styles.date}>{dateStr}</Text>
             </View>
-            <View style={styles.row}>
-                <Text style={styles.details}>{item.quantity} x ₹{item.unitPrice}</Text>
-                <Text style={[styles.paymentMethod,
-                item.paymentMethod === 'paid' ? styles.cash :
-                    item.paymentMethod === 'unpaid' ? styles.unpaid : styles.upi
-                ]}>
-                    {item.paymentMethod === 'paid' ? 'PAID' :
-                        item.paymentMethod === 'unpaid' ? 'NOT PAID' :
-                            item.paymentMethod.toUpperCase()}
-                </Text>
-            </View>
-            <Text style={styles.date}>
-                {item.timestamp?.toDate ? item.timestamp.toDate().toLocaleString() : 'Just now'}
-            </Text>
-        </View>
-    );
+        );
+    };
 
     return (
         <SafeAreaView style={styles.container}>

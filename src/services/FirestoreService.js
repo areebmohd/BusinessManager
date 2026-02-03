@@ -96,21 +96,31 @@ export const addBulkSales = async (uid, cartItems, paymentMethod) => {
     const batch = db.batch();
     const userRef = getUserDoc(uid);
 
-    cartItems.forEach(item => {
-        // 1. Create Sale Document for EACH item
-        const saleRef = userRef.collection('sales').doc();
-        batch.set(saleRef, {
-            itemId: item.id,
-            itemName: item.name,
-            quantity: item.quantity,
-            unitPrice: item.sellingPrice,
-            total: item.quantity * item.sellingPrice,
-            paymentMethod: paymentMethod, // 'paid', 'unpaid', 'upi'
-            buyerRef: '', // Future use
-            timestamp: firestore.FieldValue.serverTimestamp(),
-        });
+    // 1. Create ONE Sale Document for the entire transaction
+    const saleRef = userRef.collection('sales').doc();
 
-        // 2. Decrement Stock for EACH item
+    // Calculate total amount
+    const totalAmount = cartItems.reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0);
+
+    // Prepare items array for the document
+    const saleItems = cartItems.map(item => ({
+        itemId: item.id,
+        itemName: item.name,
+        quantity: item.quantity,
+        unitPrice: item.sellingPrice,
+        total: item.quantity * item.sellingPrice
+    }));
+
+    batch.set(saleRef, {
+        items: saleItems,
+        totalAmount: totalAmount,
+        paymentMethod: paymentMethod, // 'paid', 'unpaid', 'upi'
+        buyerRef: '', // Future use
+        timestamp: firestore.FieldValue.serverTimestamp(),
+    });
+
+    // 2. Decrement Stock for EACH item
+    cartItems.forEach(item => {
         const itemRef = userRef.collection('items').doc(item.id);
         batch.update(itemRef, {
             stock: firestore.FieldValue.increment(-item.quantity)
