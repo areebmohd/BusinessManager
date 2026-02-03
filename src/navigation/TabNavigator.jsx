@@ -1,8 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DashboardScreen from '../screens/Dashboard/DashboardScreen';
-import InventoryNavigator from './InventoryNavigator';
-import SalesNavigator from './SalesNavigator';
+import InventoryScreen from '../screens/Inventory/InventoryScreen';
+import SalesScreen from '../screens/Sales/SalesScreen';
 import SettingsScreen from '../screens/Settings/SettingsScreen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
@@ -29,8 +29,8 @@ const TabNavigator = () => {
                 }}
             />
             <Tab.Screen
-                name="InventoryTab"
-                component={InventoryNavigator}
+                name="Inventory"
+                component={InventoryScreen}
                 options={{
                     tabBarLabel: 'Inventory',
                     tabBarIcon: ({ color, size }) => (
@@ -39,8 +39,8 @@ const TabNavigator = () => {
                 }}
             />
             <Tab.Screen
-                name="SalesTab"
-                component={SalesNavigator}
+                name="Sales"
+                component={SalesScreen}
                 options={{
                     tabBarLabel: 'Sales',
                     tabBarIcon: ({ color, size }) => (
