@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { subscribeToSales } from '../../services/FirestoreService';
@@ -11,6 +11,9 @@ const SalesScreen = ({ navigation }) => {
     const [filteredSales, setFilteredSales] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
+    const [selectedFilter, setSelectedFilter] = useState('All');
+
+    const filters = ['All', 'Cash', 'UPI', 'Pending', 'Daily', 'Weekly', 'Monthly'];
 
     useEffect(() => {
         if (!user) return;
@@ -29,27 +32,54 @@ const SalesScreen = ({ navigation }) => {
     }, [user]);
 
     useEffect(() => {
-        if (!searchQuery) {
-            setFilteredSales(sales);
-        } else {
+        let result = sales;
+
+        // 1. Filter by Search Query
+        if (searchQuery) {
             const lowerQuery = searchQuery.toLowerCase();
-            const filtered = sales.filter(item => {
-                // Check total amount match
+            result = result.filter(item => {
                 const total = item.totalAmount || item.total;
                 if (total && total.toString().includes(lowerQuery)) return true;
-
-                // Check item name match
                 if (item.items && Array.isArray(item.items)) {
-                    // New format: Search inside items array
                     return item.items.some(i => i.itemName.toLowerCase().includes(lowerQuery));
                 } else {
-                    // Old format: Check single itemName
                     return item.itemName && item.itemName.toLowerCase().includes(lowerQuery);
                 }
             });
-            setFilteredSales(filtered);
         }
-    }, [searchQuery, sales]);
+
+        // 2. Filter by Chip Selection
+        if (selectedFilter !== 'All') {
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            result = result.filter(item => {
+                // Payment Status Filtering
+                if (selectedFilter === 'Cash') return item.paymentMethod === 'paid';
+                if (selectedFilter === 'UPI') return item.paymentMethod === 'upi';
+                if (selectedFilter === 'Pending') return item.paymentMethod === 'unpaid';
+
+                // Date Filtering
+                if (!item.timestamp?.toDate) return false;
+                const saleDate = item.timestamp.toDate();
+
+                if (selectedFilter === 'Daily') {
+                    return saleDate >= todayStart;
+                }
+                if (selectedFilter === 'Weekly') {
+                    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    return saleDate >= oneWeekAgo;
+                }
+                if (selectedFilter === 'Monthly') {
+                    const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    return saleDate >= oneMonthAgo;
+                }
+                return true;
+            });
+        }
+
+        setFilteredSales(result);
+    }, [searchQuery, sales, selectedFilter]);
 
     const renderItem = ({ item }) => {
         const isGrouped = item.items && Array.isArray(item.items);
@@ -118,6 +148,33 @@ const SalesScreen = ({ navigation }) => {
                 )}
             </View>
 
+            {/* Filter Chips */}
+            <View style={styles.filtersContainer}>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.filtersContent}
+                >
+                    {filters.map((filter) => (
+                        <TouchableOpacity
+                            key={filter}
+                            style={[
+                                styles.filterChip,
+                                selectedFilter === filter && styles.filterChipSelected
+                            ]}
+                            onPress={() => setSelectedFilter(filter)}
+                        >
+                            <Text style={[
+                                styles.filterChipText,
+                                selectedFilter === filter && styles.filterChipTextSelected
+                            ]}>
+                                {filter}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            </View>
+
             {loading ? (
                 <ActivityIndicator size="large" color="#007bff" style={{ marginTop: 20 }} />
             ) : (
@@ -128,7 +185,9 @@ const SalesScreen = ({ navigation }) => {
                     contentContainerStyle={{ padding: 1, paddingBottom: 80 }}
                     ListEmptyComponent={
                         <View style={styles.center}>
-                            <Text style={styles.emptyText}>{searchQuery ? "No sales found matching your search." : "No sales recorded yet."}</Text>
+                            <Text style={styles.emptyText}>
+                                {searchQuery || selectedFilter !== 'All' ? "No sales match your filters." : "No sales recorded yet."}
+                            </Text>
                         </View>
                     }
                 />
@@ -155,7 +214,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 12,
         paddingVertical: 8,
-        marginBottom: 15,
+        marginBottom: 10,
         borderWidth: 1,
         borderColor: '#ddd',
         elevation: 1,
@@ -167,6 +226,19 @@ const styles = StyleSheet.create({
         color: '#333',
         paddingVertical: 5,
     },
+    // Filter Chips Styles
+    filtersContainer: { marginBottom: 15 },
+    filtersContent: { paddingRight: 10 },
+    filterChip: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        backgroundColor: '#e0e0e0',
+        marginRight: 10,
+    },
+    filterChipSelected: { backgroundColor: '#007bff' },
+    filterChipText: { fontSize: 14, color: '#333', fontWeight: '500' },
+    filterChipTextSelected: { color: '#fff' },
     center: { alignItems: 'center', marginTop: 50 },
     card: {
         backgroundColor: '#fff',
