@@ -60,25 +60,31 @@ const InventoryScreen = ({ navigation }) => {
         setFilteredItems(result);
     }, [searchQuery, items, selectedCategory]);
 
-    const renderItem = ({ item }) => (
-        <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate('ItemDetail', { item })}
-        >
-            <View style={styles.cardContent}>
-                <View style={{ flex: 1 }}>
-                    <Text style={styles.itemName}>{item.name}</Text>
-                    <Text style={styles.itemCategory}>{item.category || 'Uncategorized'}</Text>
+    const renderItem = ({ item }) => {
+        const initialStock = item.initialStock || 0;
+        const lowStockThreshold = Math.max(initialStock * 0.1, 0); // 10%
+        const isLowStock = item.stock < lowStockThreshold && item.stock > 0;
+
+        return (
+            <TouchableOpacity
+                style={styles.card}
+                onPress={() => navigation.navigate('ItemDetail', { item })}
+            >
+                <View style={styles.cardContent}>
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.itemName}>{item.name}</Text>
+                        <Text style={styles.itemCategory}>{item.category || 'Uncategorized'}</Text>
+                    </View>
+                    <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={styles.itemPrice}>₹{item.sellingPrice}</Text>
+                        <Text style={[styles.stockText, isLowStock && styles.lowStock]}>
+                            Stock: {item.stock}
+                        </Text>
+                    </View>
                 </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={styles.itemPrice}>₹{item.sellingPrice}</Text>
-                    <Text style={[styles.stockText, item.stock < 5 && styles.lowStock]}>
-                        Stock: {item.stock}
-                    </Text>
-                </View>
-            </View>
-        </TouchableOpacity>
-    );
+            </TouchableOpacity>
+        );
+    };
 
     if (loading) {
         return (

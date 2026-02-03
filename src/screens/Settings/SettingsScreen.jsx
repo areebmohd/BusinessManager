@@ -8,12 +8,19 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const SettingsScreen = () => {
     const { user, logout } = useAuth();
     const [loading, setLoading] = useState(true);
-    const [lowStockLimit, setLowStockLimit] = useState('5');
+    const [businessDetails, setBusinessDetails] = useState({
+        businessName: '',
+        ownerName: '',
+        phone: '',
+        email: ''
+    });
 
     useEffect(() => {
         if (!user) return;
         const unsubscribe = subscribeToSettings(user.uid, (settings) => {
-            if (settings.lowStockLimit) setLowStockLimit(String(settings.lowStockLimit));
+            if (settings.businessDetails) {
+                setBusinessDetails(settings.businessDetails);
+            }
             setLoading(false);
         });
         return () => unsubscribe();
@@ -22,12 +29,16 @@ const SettingsScreen = () => {
     const handleSave = async () => {
         try {
             await saveSettings(user.uid, {
-                lowStockLimit: parseInt(lowStockLimit) || 5
+                businessDetails: businessDetails
             });
-            Alert.alert('Success', 'Settings saved successfully');
+            Alert.alert('Success', 'Business details saved successfully');
         } catch (error) {
             Alert.alert('Error', 'Failed to save settings');
         }
+    };
+
+    const handleChange = (field, value) => {
+        setBusinessDetails(prev => ({ ...prev, [field]: value }));
     };
 
     const handleLogout = () => {
@@ -57,17 +68,42 @@ const SettingsScreen = () => {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Business Details</Text>
 
-                    <Text style={styles.label}>Low Stock Warning Limit</Text>
+                    <Text style={styles.label}>Business Name</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="5"
-                        keyboardType="numeric"
-                        value={lowStockLimit}
-                        onChangeText={setLowStockLimit}
+                        placeholder="e.g. My General Store"
+                        value={businessDetails.businessName}
+                        onChangeText={(text) => handleChange('businessName', text)}
+                    />
+
+                    <Text style={styles.label}>Owner Name</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="e.g. John Doe"
+                        value={businessDetails.ownerName}
+                        onChangeText={(text) => handleChange('ownerName', text)}
+                    />
+
+                    <Text style={styles.label}>Phone Number</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="e.g. +91 9876543210"
+                        keyboardType="phone-pad"
+                        value={businessDetails.phone}
+                        onChangeText={(text) => handleChange('phone', text)}
+                    />
+
+                    <Text style={styles.label}>Email Address</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="e.g. business@example.com"
+                        keyboardType="email-address"
+                        value={businessDetails.email}
+                        onChangeText={(text) => handleChange('email', text)}
                     />
 
                     <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                        <Text style={styles.saveText}>Save Changes</Text>
+                        <Text style={styles.saveText}>Save Details</Text>
                     </TouchableOpacity>
                 </View>
 

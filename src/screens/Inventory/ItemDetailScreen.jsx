@@ -55,7 +55,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
                     <View style={styles.divider} />
                     <View style={styles.detailRow}>
                         <Text style={styles.label}>Current Stock</Text>
-                        <Text style={[styles.value, item.stock < 5 ? styles.lowStock : null]}>
+                        <Text style={[styles.value, (item.stock < (item.initialStock || 0) * 0.1 && item.stock > 0) ? styles.lowStock : null]}>
                             {item.stock} units
                         </Text>
                     </View>

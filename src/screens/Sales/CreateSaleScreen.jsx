@@ -96,12 +96,15 @@ const CreateSaleScreen = ({ navigation }) => {
 
     const renderItemCard = ({ item }) => {
         const inCart = item.quantity > 0;
+        const initialStock = item.initialStock || 0;
+        const lowStockThreshold = Math.max(initialStock * 0.1, 0); // 10%
+        const isLowStock = item.stock < lowStockThreshold && item.stock > 0;
 
         return (
             <View style={[styles.itemCard, inCart && styles.itemCardSelected]}>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.itemName}>{item.name}</Text>
-                    <Text style={[styles.stock, item.stock < 5 && styles.lowStock]}>
+                    <Text style={[styles.stock, isLowStock && styles.lowStock]}>
                         Stock: {item.stock}
                     </Text>
                     <Text style={styles.price}>₹{item.sellingPrice}</Text>
@@ -197,7 +200,7 @@ const CreateSaleScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f5f5f5' },
-    searchSection: { padding: 15, paddingBottom: 10, backgroundColor: '#f5f5f5'},
+    searchSection: { padding: 15, paddingBottom: 10, backgroundColor: '#f5f5f5' },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
