@@ -128,14 +128,22 @@ const CreateSaleScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.header}>New Sale</Text>
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search items..."
-                    value={search}
-                    onChangeText={setSearch}
-                />
+            <View style={styles.searchSection}>
+                <View style={styles.searchContainer}>
+                    <MaterialIcons name="search" size={24} color="#777" />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Search items..."
+                        placeholderTextColor="#999"
+                        value={search}
+                        onChangeText={setSearch}
+                    />
+                    {search.length > 0 && (
+                        <TouchableOpacity onPress={() => setSearch('')}>
+                            <MaterialIcons name="close" size={20} color="#777" />
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
 
             <FlatList
@@ -189,9 +197,25 @@ const CreateSaleScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f5f5f5' },
-    headerContainer: { padding: 15, paddingBottom: 10, backgroundColor: '#fff', elevation: 2 },
-    header: { fontSize: 24, fontWeight: 'bold', color: '#333', marginBottom: 10 },
-    searchInput: { backgroundColor: '#f0f0f0', borderRadius: 8, padding: 10, fontSize: 16 },
+    searchSection: { padding: 15, paddingBottom: 10, backgroundColor: '#fff', elevation: 2 },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        elevation: 1,
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: 10,
+        fontSize: 16,
+        color: '#333',
+        paddingVertical: 5,
+    },
 
     listContent: { padding: 15, paddingBottom: 10 },
     itemCard: {
