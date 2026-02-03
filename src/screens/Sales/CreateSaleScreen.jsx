@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, FlatList } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, FlatList, ScrollView } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
-import { subscribeToItems, addSale } from '../../services/FirestoreService';
+import { subscribeToItems, addBulkSales } from '../../services/FirestoreService';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const CreateSaleScreen = ({ navigation }) => {
     const { user } = useAuth();
     const [items, setItems] = useState([]);
+    const [cart, setCart] = useState([]);
     const [search, setSearch] = useState('');
-    const [selectedItem, setSelectedItem] = useState(null);
-    const [quantity, setQuantity] = useState('1');
-    const [paymentStatus, setPaymentStatus] = useState('paid'); // 'paid' or 'unpaid'
+    const [paymentStatus, setPaymentStatus] = useState('paid'); // 'paid', 'upi', 'unpaid'
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!user) return;
@@ -17,115 +18,169 @@ const CreateSaleScreen = ({ navigation }) => {
         return () => unsubscribe();
     }, [user]);
 
-    const filteredItems = items.filter(i => i.name.toLowerCase().includes(search.toLowerCase()));
+    // Derived state: Items with cart quantity merged in
+    const itemsWithQty = useMemo(() => {
+        return items.map(item => {
+            const cartItem = cart.find(c => c.id === item.id);
+            return cartItem ? { ...item, quantity: cartItem.quantity } : { ...item, quantity: 0 };
+        });
+    }, [items, cart]);
 
-    const handleCreateSale = async () => {
-        if (!selectedItem) {
-            Alert.alert("Selection Error", "Please select an item first.");
-            return;
-        }
-        const qty = parseInt(quantity);
-        if (!qty || qty <= 0) {
-            Alert.alert("Validation Error", "Quantity must be at least 1.");
-            return;
-        }
-        if (qty > selectedItem.stock) {
-            Alert.alert("Stock Error", `Only ${selectedItem.stock} items in stock.`);
-            return;
+    const filteredAndSortedItems = useMemo(() => {
+        let result = itemsWithQty;
+
+        if (search) {
+            result = result.filter(i => i.name.toLowerCase().includes(search.toLowerCase()));
         }
 
-        await processSale();
-    };
+        // Sort: Items in cart (quantity > 0) go to top, then alphabetical
+        return result.sort((a, b) => {
+            if (a.quantity > 0 && b.quantity === 0) return -1;
+            if (a.quantity === 0 && b.quantity > 0) return 1;
+            return a.name.localeCompare(b.name);
+        });
+    }, [itemsWithQty, search]);
 
-    const processSale = async () => {
-        try {
-            await addSale(user.uid, {
-                itemId: selectedItem.id,
-                itemName: selectedItem.name,
-                quantity: parseInt(quantity),
-                unitPrice: selectedItem.sellingPrice,
-                total: parseInt(quantity) * selectedItem.sellingPrice,
-                paymentMethod: paymentStatus, // Storing 'paid' or 'unpaid'
-                buyerRef: ''
-            });
-            Alert.alert("Success", "Sale recorded!", [{ text: "OK", onPress: () => navigation.goBack() }]);
-        } catch (error) {
-            Alert.alert("Error", "Could not record sale.");
+    const handleQuantityChange = (item, change) => {
+        if (item.stock <= 0 && change > 0) {
+            Alert.alert("Out of Stock", "This item is currently out of stock.");
+            return;
         }
+
+        setCart(prevCart => {
+            const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
+            const currentQty = existingItem ? existingItem.quantity : 0;
+            const newQty = currentQty + change;
+
+            if (newQty > item.stock) {
+                Alert.alert("Limit Reached", `Only ${item.stock} units available.`);
+                return prevCart;
+            }
+
+            if (newQty <= 0) {
+                // Remove from cart
+                return prevCart.filter(cartItem => cartItem.id !== item.id);
+            }
+
+            if (existingItem) {
+                // Update existing
+                return prevCart.map(cartItem =>
+                    cartItem.id === item.id ? { ...cartItem, quantity: newQty } : cartItem
+                );
+            } else {
+                // Add new
+                return [...prevCart, { ...item, quantity: newQty }];
+            }
+        });
     };
 
     const calculateTotal = () => {
-        if (!selectedItem) return 0;
-        return (parseInt(quantity) || 0) * selectedItem.sellingPrice;
+        return cart.reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0);
     };
 
-    const renderItem = ({ item }) => (
-        <TouchableOpacity
-            style={[styles.itemCard, selectedItem?.id === item.id && styles.selectedCard]}
-            onPress={() => setSelectedItem(item)}
-        >
-            <View>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.stock}>Stock: {item.stock}</Text>
+    const handleCompleteSale = async () => {
+        if (cart.length === 0) return;
+
+        setLoading(true);
+        try {
+            await addBulkSales(user.uid, cart, paymentStatus);
+            Alert.alert("Success", "Sale recorded successfully!", [
+                { text: "OK", onPress: () => navigation.goBack() }
+            ]);
+        } catch (error) {
+            Alert.alert("Error", "Could not complete sale. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const renderItemCard = ({ item }) => {
+        const inCart = item.quantity > 0;
+
+        return (
+            <View style={[styles.itemCard, inCart && styles.itemCardSelected]}>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.itemName}>{item.name}</Text>
+                    <Text style={[styles.stock, item.stock < 5 && styles.lowStock]}>
+                        Stock: {item.stock}
+                    </Text>
+                    <Text style={styles.price}>₹{item.sellingPrice}</Text>
+                </View>
+
+                {inCart ? (
+                    <View style={styles.qtyContainer}>
+                        <TouchableOpacity onPress={() => handleQuantityChange(item, -1)} style={styles.qtyBtn}>
+                            <MaterialIcons name="remove" size={20} color="#fff" />
+                        </TouchableOpacity>
+                        <Text style={styles.qtyText}>{item.quantity}</Text>
+                        <TouchableOpacity onPress={() => handleQuantityChange(item, 1)} style={styles.qtyBtn}>
+                            <MaterialIcons name="add" size={20} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
+                ) : (
+                    <TouchableOpacity onPress={() => handleQuantityChange(item, 1)}>
+                        <MaterialIcons name="add-circle-outline" size={32} color="#007bff" />
+                    </TouchableOpacity>
+                )}
             </View>
-            <Text style={styles.price}>₹{item.sellingPrice}</Text>
-        </TouchableOpacity>
-    );
+        );
+    };
 
     return (
         <View style={styles.container}>
-            {/* 1. Item Selection */}
-            <Text style={styles.label}>Select Item</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Search item..."
-                value={search}
-                onChangeText={setSearch}
-            />
-
-            <View style={styles.listContainer}>
-                <FlatList
-                    data={filteredItems}
-                    keyExtractor={item => item.id}
-                    renderItem={renderItem}
+            <View style={styles.headerContainer}>
+                <Text style={styles.header}>New Sale</Text>
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search items..."
+                    value={search}
+                    onChangeText={setSearch}
                 />
             </View>
 
-            {/* 2. Sale Details */}
-            <View style={styles.detailsContainer}>
-                <View style={styles.row}>
-                    <View style={{ flex: 1, marginRight: 10 }}>
-                        <Text style={styles.label}>Quantity</Text>
-                        <TextInput
-                            style={styles.input}
-                            keyboardType="numeric"
-                            value={quantity}
-                            onChangeText={setQuantity}
-                        />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <Text style={styles.label}>Total Amount</Text>
-                        <Text style={styles.totalText}>₹{calculateTotal()}</Text>
+            <FlatList
+                data={filteredAndSortedItems}
+                keyExtractor={item => item.id}
+                renderItem={renderItemCard}
+                contentContainerStyle={styles.listContent}
+            />
+
+            {/* Footer Summary */}
+            <View style={styles.footer}>
+                <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>Total Amount:</Text>
+                    <Text style={styles.totalValue}>₹{calculateTotal()}</Text>
+                </View>
+
+                <View style={styles.paymentSection}>
+                    <Text style={styles.label}>Payment Method</Text>
+                    <View style={styles.paymentRow}>
+                        {[
+                            { id: 'paid', label: 'Cash' },
+                            { id: 'upi', label: 'UPI' },
+                            { id: 'unpaid', label: 'Pending' }
+                        ].map(option => (
+                            <TouchableOpacity
+                                key={option.id}
+                                style={[styles.paymentOption, paymentStatus === option.id && styles.activePayment]}
+                                onPress={() => setPaymentStatus(option.id)}
+                            >
+                                <Text style={[styles.paymentText, paymentStatus === option.id && styles.activePaymentText]}>
+                                    {option.label}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
                     </View>
                 </View>
 
-                <Text style={styles.label}>Payment Status</Text>
-                <View style={styles.paymentRow}>
-                    {['paid', 'unpaid'].map(status => (
-                        <TouchableOpacity
-                            key={status}
-                            style={[styles.paymentOption, paymentStatus === status && styles.activePayment]}
-                            onPress={() => setPaymentStatus(status)}
-                        >
-                            <Text style={[styles.paymentText, paymentStatus === status && styles.activePaymentText]}>
-                                {status === 'paid' ? 'Paid' : 'Not Paid'}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-
-                <TouchableOpacity style={styles.submitButton} onPress={handleCreateSale}>
-                    <Text style={styles.submitText}>Complete Sale</Text>
+                <TouchableOpacity
+                    style={[styles.completeButton, (cart.length === 0 || loading) && styles.disabledButton]}
+                    onPress={handleCompleteSale}
+                    disabled={cart.length === 0 || loading}
+                >
+                    <Text style={styles.completeButtonText}>
+                        {loading ? "Processing..." : `Complete Sale (₹${calculateTotal()})`}
+                    </Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -133,25 +188,53 @@ const CreateSaleScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 20, backgroundColor: '#f9f9f9' },
-    label: { fontSize: 14, fontWeight: 'bold', color: '#555', marginBottom: 5 },
-    input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8, marginBottom: 10 },
-    listContainer: { flex: 1, marginBottom: 20 },
-    itemCard: { flexDirection: 'row', justifyContent: 'space-between', padding: 12, backgroundColor: '#fff', marginBottom: 8, borderRadius: 8 },
-    selectedCard: { borderColor: '#007bff', borderWidth: 2, backgroundColor: '#e3f2fd' },
-    itemName: { fontSize: 16, fontWeight: 'bold' },
-    stock: { fontSize: 12, color: '#777' },
-    price: { fontSize: 16, fontWeight: 'bold', color: '#2e7d32' },
-    detailsContainer: { backgroundColor: '#fff', padding: 15, borderRadius: 10, elevation: 5 },
-    row: { flexDirection: 'row', marginBottom: 10 },
-    totalText: { fontSize: 24, fontWeight: 'bold', color: '#000', marginTop: 5 },
-    paymentRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+    container: { flex: 1, backgroundColor: '#f5f5f5' },
+    headerContainer: { padding: 15, paddingBottom: 10, backgroundColor: '#fff', elevation: 2 },
+    header: { fontSize: 24, fontWeight: 'bold', color: '#333', marginBottom: 10 },
+    searchInput: { backgroundColor: '#f0f0f0', borderRadius: 8, padding: 10, fontSize: 16 },
+
+    listContent: { padding: 15, paddingBottom: 10 },
+    itemCard: {
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+        backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 10,
+        elevation: 1, borderWidth: 1, borderColor: 'transparent'
+    },
+    itemCardSelected: { borderColor: '#007bff', backgroundColor: '#f0f8ff' },
+    itemName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
+    stock: { fontSize: 12, color: '#666', marginTop: 2 },
+    lowStock: { color: '#d32f2f', fontWeight: 'bold' },
+    price: { fontSize: 15, fontWeight: 'bold', color: '#2e7d32', marginTop: 4 },
+
+    qtyContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#e0e0e0', borderRadius: 20, padding: 3 },
+    qtyBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#007bff', justifyContent: 'center', alignItems: 'center' },
+    qtyText: { marginHorizontal: 15, fontSize: 16, fontWeight: 'bold', color: '#333' },
+
+    footer: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        elevation: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5
+    },
+    totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
+    totalLabel: { fontSize: 18, fontWeight: 'bold', color: '#333' },
+    totalValue: { fontSize: 24, fontWeight: 'bold', color: '#2e7d32' },
+
+    paymentSection: { marginBottom: 15 },
+    label: { fontSize: 14, color: '#666', marginBottom: 8 },
+    paymentRow: { flexDirection: 'row', justifyContent: 'space-between' },
     paymentOption: { flex: 1, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, marginHorizontal: 4 },
     activePayment: { backgroundColor: '#007bff', borderColor: '#007bff' },
     paymentText: { color: '#333', fontWeight: 'bold' },
     activePaymentText: { color: '#fff' },
-    submitButton: { backgroundColor: '#28a745', padding: 15, borderRadius: 8, alignItems: 'center' },
-    submitText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+
+    completeButton: { backgroundColor: '#28a745', padding: 15, borderRadius: 10, alignItems: 'center' },
+    disabledButton: { backgroundColor: '#a5d6a7' },
+    completeButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
 });
 
 export default CreateSaleScreen;

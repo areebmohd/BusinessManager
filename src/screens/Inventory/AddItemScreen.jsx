@@ -104,7 +104,7 @@ const AddItemScreen = ({ navigation }) => {
                 onChangeText={text => handleChange('category', text)}
             />
 
-            <Text style={styles.label}>Barcode (Optional)</Text>
+            <Text style={styles.label}>Barcode</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Scan or type barcode"

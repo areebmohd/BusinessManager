@@ -91,6 +91,40 @@ export const addSale = async (uid, saleData) => {
     }
 };
 
+export const addBulkSales = async (uid, cartItems, paymentMethod) => {
+    const db = firestore();
+    const batch = db.batch();
+    const userRef = getUserDoc(uid);
+
+    cartItems.forEach(item => {
+        // 1. Create Sale Document for EACH item
+        const saleRef = userRef.collection('sales').doc();
+        batch.set(saleRef, {
+            itemId: item.id,
+            itemName: item.name,
+            quantity: item.quantity,
+            unitPrice: item.sellingPrice,
+            total: item.quantity * item.sellingPrice,
+            paymentMethod: paymentMethod, // 'paid', 'unpaid', 'upi'
+            buyerRef: '', // Future use
+            timestamp: firestore.FieldValue.serverTimestamp(),
+        });
+
+        // 2. Decrement Stock for EACH item
+        const itemRef = userRef.collection('items').doc(item.id);
+        batch.update(itemRef, {
+            stock: firestore.FieldValue.increment(-item.quantity)
+        });
+    });
+
+    try {
+        await batch.commit();
+    } catch (error) {
+        console.error("Error processing bulk sales: ", error);
+        throw error;
+    }
+};
+
 export const subscribeToSales = (uid, onResult, onError) => {
     return getUserDoc(uid)
         .collection('sales')
