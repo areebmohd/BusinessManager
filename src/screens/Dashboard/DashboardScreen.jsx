@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { subscribeToItems, subscribeToSales, subscribeToSettings } from '../../services/FirestoreService';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { LineChart } from 'react-native-chart-kit';
 
 const DashboardScreen = ({ navigation }) => {
     const { user } = useAuth();
@@ -144,6 +145,49 @@ const DashboardScreen = ({ navigation }) => {
             }
         });
 
+        // Monthly Chart Data Calculation
+        const today = new Date();
+        const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+        const dailySales = new Array(daysInMonth).fill(0);
+
+        sales.forEach(sale => {
+            if (!sale.timestamp?.toDate) return;
+            const date = sale.timestamp.toDate();
+            if (isThisMonth(date)) {
+                const day = date.getDate();
+                // daily arrays are 0-indexed, so day 1 is index 0
+                const saleTotal = parse(sale.total);
+                // Fallback for missing total
+                const finalTotal = saleTotal || (
+                    (sale.items && Array.isArray(sale.items))
+                        ? sale.items.reduce((sum, item) => sum + (parse(item.unitPrice) * parse(item.quantity)), 0)
+                        : (parse(sale.unitPrice) * parse(sale.quantity))
+                );
+
+                if (finalTotal > 0) {
+                    dailySales[day - 1] += finalTotal;
+                }
+            }
+        });
+
+        // Generate Labels (1, 5, 10, 15, 20, 25, 30...)
+        const displayLabels = Array.from({ length: daysInMonth }, (_, i) => {
+            const day = i + 1;
+            return (day === 1 || day % 5 === 0) ? String(day) : '';
+        });
+
+        const chartData = {
+            labels: displayLabels,
+            datasets: [
+                {
+                    data: dailySales,
+                    color: (opacity = 1) => `rgba(21, 101, 192, ${opacity})`, // optional
+                    strokeWidth: 2 // optional
+                }
+            ],
+            // legend: ["Daily Sales"] // optional
+        };
+
         // Inventory Stats
         const totalItems = items.length;
         const totalStockValue = items.reduce((sum, item) => sum + (parse(item.costPrice) * parse(item.stock)), 0);
@@ -194,7 +238,8 @@ const DashboardScreen = ({ navigation }) => {
             totalProfit,  // All time
             totalPending, // All time
 
-            bestSellers: sortedBestSellers
+            bestSellers: sortedBestSellers,
+            chartData
         };
 
     }, [sales, items, loading]);
@@ -248,6 +293,40 @@ const DashboardScreen = ({ navigation }) => {
                         <Text style={styles.rowValue}>₹{metrics.monthlyRevenue}</Text>
                         <Text style={[styles.subValue, { color: '#2e7d32' }]}>P: ₹{metrics.monthlyProfit.toFixed(0)}</Text>
                     </View>
+                </View>
+
+                {/* MONTHLY SALES CHART */}
+                <Text style={styles.sectionTitle}>Monthly Sales Trend</Text>
+                <View style={[styles.card, { backgroundColor: '#fff', padding: 0, overflow: 'hidden', alignItems: 'center' }]}>
+                    <LineChart
+                        data={metrics.chartData}
+                        width={Dimensions.get("window").width - 40} // from react-native
+                        height={220}
+                        yAxisLabel="₹"
+                        yAxisSuffix=""
+                        yAxisInterval={1} // optional, defaults to 1
+                        chartConfig={{
+                            backgroundColor: "#ffffff",
+                            backgroundGradientFrom: "#ffffff",
+                            backgroundGradientTo: "#ffffff",
+                            decimalPlaces: 0, // optional, defaults to 2dp
+                            color: (opacity = 1) => `rgba(21, 101, 192, ${opacity})`,
+                            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                            style: {
+                                borderRadius: 16
+                            },
+                            propsForDots: {
+                                r: "4",
+                                strokeWidth: "2",
+                                stroke: "#1565c0"
+                            }
+                        }}
+                        bezier
+                        style={{
+                            marginVertical: 8,
+                            borderRadius: 16
+                        }}
+                    />
                 </View>
 
                 {/* BEST SELLERS */}
