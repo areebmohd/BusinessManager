@@ -10,6 +10,18 @@ const SaleDetailScreen = ({ route, navigation }) => {
     const dateStr = sale.timestamp?.toDate ? sale.timestamp.toDate().toLocaleString() : 'Just now';
     const isGrouped = sale.items && Array.isArray(sale.items);
 
+    // Helper to safely get payment method string
+    let paymentMethodStr = sale.paymentMethod;
+    if (typeof paymentMethodStr === 'object' && paymentMethodStr !== null) {
+        // Handle case where it might be saved as an object wrapping the string
+        paymentMethodStr = paymentMethodStr.paymentMethod || 'unknown';
+    }
+    if (typeof paymentMethodStr !== 'string') {
+        paymentMethodStr = 'unknown';
+    }
+    // Normalize case for comparison
+    const lowerMethod = paymentMethodStr.toLowerCase();
+
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
             {/* Header handled by Navigation */}
@@ -17,14 +29,14 @@ const SaleDetailScreen = ({ route, navigation }) => {
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>Summary</Text>
                     <View style={[styles.statusBadge,
-                    sale.paymentMethod === 'paid' ? styles.paidBadge :
-                        sale.paymentMethod === 'unpaid' ? styles.unpaidBadge : styles.upiBadge
+                    lowerMethod === 'paid' ? styles.paidBadge :
+                        lowerMethod === 'unpaid' ? styles.unpaidBadge : styles.upiBadge
                     ]}>
                         <Text style={[styles.statusText,
-                        sale.paymentMethod === 'paid' ? styles.paidText :
-                            sale.paymentMethod === 'unpaid' ? styles.unpaidText : styles.upiText
+                        lowerMethod === 'paid' ? styles.paidText :
+                            lowerMethod === 'unpaid' ? styles.unpaidText : styles.upiText
                         ]}>
-                            {sale.paymentMethod ? sale.paymentMethod.toUpperCase() : 'UNKNOWN'}
+                            {paymentMethodStr.toUpperCase()}
                         </Text>
                     </View>
                 </View>
