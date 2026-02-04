@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { subscribeToItems } from '../../services/FirestoreService';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import BarcodeScannerModal from '../../components/BarcodeScannerModal';
 
 const InventoryScreen = ({ navigation }) => {
     const { user } = useAuth();
@@ -12,6 +13,7 @@ const InventoryScreen = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState('All');
+    const [scannerVisible, setScannerVisible] = useState(false);
 
     // Extract unique categories from items
     const categories = useMemo(() => {
@@ -53,7 +55,8 @@ const InventoryScreen = ({ navigation }) => {
             const lowerQuery = searchQuery.toLowerCase();
             result = result.filter(item =>
                 item.name.toLowerCase().includes(lowerQuery) ||
-                (item.category && item.category.toLowerCase().includes(lowerQuery))
+                (item.category && item.category.toLowerCase().includes(lowerQuery)) ||
+                (item.barcode && item.barcode.toLowerCase().includes(lowerQuery))
             );
         }
 
@@ -113,7 +116,18 @@ const InventoryScreen = ({ navigation }) => {
                         <MaterialIcons name="close" size={20} color="#777" />
                     </TouchableOpacity>
                 )}
+                <TouchableOpacity onPress={() => setScannerVisible(true)} style={{ marginLeft: 10 }}>
+                    <MaterialIcons name="qr-code-scanner" size={24} color="#007bff" />
+                </TouchableOpacity>
             </View>
+
+            <BarcodeScannerModal
+                visible={scannerVisible}
+                onClose={() => setScannerVisible(false)}
+                onScan={(code) => {
+                    setSearchQuery(code);
+                }}
+            />
 
             {/* Category Chips */}
             <View style={styles.categoriesContainer}>

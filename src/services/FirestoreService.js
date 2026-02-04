@@ -108,7 +108,8 @@ export const addBulkSales = async (uid, cartItems, paymentMethod) => {
         itemName: item.name,
         quantity: item.quantity,
         unitPrice: item.sellingPrice,
-        total: item.quantity * item.sellingPrice
+        total: item.quantity * item.sellingPrice,
+        barcode: item.barcode || null
     }));
 
     // Handle paymentMethod being either a string (legacy) or an object (new sale info)

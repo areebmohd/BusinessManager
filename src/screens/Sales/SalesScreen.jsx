@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { subscribeToSales } from '../../services/FirestoreService';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import BarcodeScannerModal from '../../components/BarcodeScannerModal';
 
 const SalesScreen = ({ navigation }) => {
     const { user } = useAuth();
@@ -12,6 +13,7 @@ const SalesScreen = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [selectedFilter, setSelectedFilter] = useState('All');
+    const [scannerVisible, setScannerVisible] = useState(false);
 
     const filters = ['All', 'Cash', 'UPI', 'Pending', 'Daily', 'Weekly', 'Monthly'];
 
@@ -36,14 +38,18 @@ const SalesScreen = ({ navigation }) => {
 
         // 1. Filter by Search Query
         if (searchQuery) {
-            const lowerQuery = searchQuery.toLowerCase();
+            const lowerQuery = searchQuery.toLowerCase().trim();
             result = result.filter(item => {
                 const total = item.totalAmount || item.total;
                 if (total && total.toString().includes(lowerQuery)) return true;
                 if (item.items && Array.isArray(item.items)) {
-                    return item.items.some(i => i.itemName.toLowerCase().includes(lowerQuery));
+                    return item.items.some(i =>
+                        i.itemName.toLowerCase().includes(lowerQuery) ||
+                        (i.barcode && i.barcode.toLowerCase().includes(lowerQuery))
+                    );
                 } else {
-                    return item.itemName && item.itemName.toLowerCase().includes(lowerQuery);
+                    return (item.itemName && item.itemName.toLowerCase().includes(lowerQuery)) ||
+                        (item.barcode && item.barcode.toLowerCase().includes(lowerQuery));
                 }
             });
         }
@@ -150,7 +156,16 @@ const SalesScreen = ({ navigation }) => {
                         <MaterialIcons name="close" size={20} color="#777" />
                     </TouchableOpacity>
                 )}
+                <TouchableOpacity onPress={() => setScannerVisible(true)} style={{ marginLeft: 10 }}>
+                    <MaterialIcons name="qr-code-scanner" size={24} color="#007bff" />
+                </TouchableOpacity>
             </View>
+
+            <BarcodeScannerModal
+                visible={scannerVisible}
+                onClose={() => setScannerVisible(false)}
+                onScan={(code) => setSearchQuery(code)}
+            />
 
             {/* Filter Chips */}
             <View style={styles.filtersContainer}>

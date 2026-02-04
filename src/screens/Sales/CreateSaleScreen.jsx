@@ -3,12 +3,14 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, FlatList, S
 import { useAuth } from '../../context/AuthContext';
 import { subscribeToItems, addBulkSales } from '../../services/FirestoreService';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import BarcodeScannerModal from '../../components/BarcodeScannerModal';
 
 const CreateSaleScreen = ({ navigation }) => {
     const { user } = useAuth();
     const [items, setItems] = useState([]);
     const [cart, setCart] = useState([]);
     const [search, setSearch] = useState('');
+    const [scannerVisible, setScannerVisible] = useState(false);
 
     useEffect(() => {
         if (!user) return;
@@ -28,7 +30,10 @@ const CreateSaleScreen = ({ navigation }) => {
         let result = itemsWithQty;
 
         if (search) {
-            result = result.filter(i => i.name.toLowerCase().includes(search.toLowerCase()));
+            result = result.filter(i =>
+                i.name.toLowerCase().includes(search.toLowerCase()) ||
+                (i.barcode && i.barcode.toLowerCase().includes(search.toLowerCase()))
+            );
         }
 
         // Sort: Items in cart (quantity > 0) go to top, then alphabetical
@@ -128,7 +133,16 @@ const CreateSaleScreen = ({ navigation }) => {
                             <MaterialIcons name="close" size={20} color="#777" />
                         </TouchableOpacity>
                     )}
+                    <TouchableOpacity onPress={() => setScannerVisible(true)} style={{ marginLeft: 10 }}>
+                        <MaterialIcons name="qr-code-scanner" size={24} color="#007bff" />
+                    </TouchableOpacity>
                 </View>
+
+                <BarcodeScannerModal
+                    visible={scannerVisible}
+                    onClose={() => setScannerVisible(false)}
+                    onScan={(code) => setSearch(code)}
+                />
             </View>
 
             <FlatList

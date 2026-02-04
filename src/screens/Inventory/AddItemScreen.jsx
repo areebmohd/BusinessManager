@@ -1,11 +1,15 @@
+
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { addItem } from '../../services/FirestoreService';
 import { useAuth } from '../../context/AuthContext';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import BarcodeScannerModal from '../../components/BarcodeScannerModal';
 
 const AddItemScreen = ({ navigation }) => {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [scannerVisible, setScannerVisible] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         sellingPrice: '',
@@ -105,11 +109,22 @@ const AddItemScreen = ({ navigation }) => {
             />
 
             <Text style={styles.label}>Barcode</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Scan or type barcode"
-                value={formData.barcode}
-                onChangeText={text => handleChange('barcode', text)}
+            <View style={styles.barcodeContainer}>
+                <TextInput
+                    style={[styles.input, styles.barcodeInput]}
+                    placeholder="Scan or type barcode"
+                    value={formData.barcode}
+                    onChangeText={text => handleChange('barcode', text)}
+                />
+                <TouchableOpacity style={styles.scanButton} onPress={() => setScannerVisible(true)}>
+                    <MaterialIcons name="qr-code-scanner" size={24} color="#007bff" />
+                </TouchableOpacity>
+            </View>
+
+            <BarcodeScannerModal
+                visible={scannerVisible}
+                onClose={() => setScannerVisible(false)}
+                onScan={(code) => handleChange('barcode', code)}
             />
 
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -164,6 +179,23 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    barcodeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    barcodeInput: {
+        flex: 1,
+        marginBottom: 0, // Override default margin
+    },
+    scanButton: {
+        padding: 12,
+        marginLeft: 10,
+        backgroundColor: '#e3f2fd',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#007bff',
     },
 });
 
