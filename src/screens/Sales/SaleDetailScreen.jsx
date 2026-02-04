@@ -1,11 +1,38 @@
 
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { generateBillText } from '../../utils/BillUtils';
+import { shareBillToWhatsApp } from '../../utils/WhatsAppUtils';
+import { useAuth } from '../../context/AuthContext';
+import { subscribeToSettings } from '../../services/FirestoreService';
 
 const SaleDetailScreen = ({ route, navigation }) => {
     const { sale } = route.params;
+    const { user } = useAuth();
+    const [businessInfo, setBusinessInfo] = useState({});
+    const [billText, setBillText] = useState('');
+
+    useEffect(() => {
+        const unsubscribe = subscribeToSettings(user.uid, (settings) => {
+            const info = settings || {};
+            setBusinessInfo(info);
+            // Generate bill text once info is available
+            setBillText(generateBillText(sale, info));
+        });
+        return unsubscribe;
+    }, []);
+
+    const handleShareBill = () => {
+        shareBillToWhatsApp(billText, sale.buyerNumber);
+    };
+
+    const handleCopyBill = () => {
+        Clipboard.setString(billText);
+        Alert.alert("Copied", "Bill text copied to clipboard!");
+    };
 
     const dateStr = sale.timestamp?.toDate ? sale.timestamp.toDate().toLocaleString() : 'Just now';
     const isGrouped = sale.items && Array.isArray(sale.items);
@@ -50,6 +77,18 @@ const SaleDetailScreen = ({ route, navigation }) => {
                     <Text style={styles.label}>Total Amount</Text>
                     <Text style={styles.totalValue}>₹{sale.totalAmount || sale.total}</Text>
                 </View>
+
+                {/* Buyer Details */}
+                <View style={styles.divider} />
+                <View style={styles.row}>
+                    <Text style={styles.label}>Buyer Name</Text>
+                    <Text style={styles.value}>{sale.buyerName || 'N/A'}</Text>
+                </View>
+                <View style={styles.row}>
+                    <Text style={styles.label}>Buyer Mobile</Text>
+                    <Text style={styles.value}>{sale.buyerNumber || 'N/A'}</Text>
+                </View>
+
             </View>
 
             <View style={styles.card}>
@@ -77,13 +116,25 @@ const SaleDetailScreen = ({ route, navigation }) => {
                 )}
             </View>
 
-            {/* Placeholder for future actions */}
+            {/* Bill Preview Section */}
+            <View style={styles.card}>
+                <Text style={styles.sectionTitle}>Bill Preview</Text>
+                <View style={styles.divider} />
+                <View style={styles.previewContainer}>
+                    <Text style={styles.previewText} selectable={true}>{billText}</Text>
+                </View>
+                <TouchableOpacity style={styles.copyButton} onPress={handleCopyBill}>
+                    <MaterialIcons name="content-copy" size={20} color="#007bff" />
+                    <Text style={styles.copyButtonText}>Copy Bill Text</Text>
+                </TouchableOpacity>
+            </View>
+
             <View style={styles.actions}>
                 <TouchableOpacity style={styles.actionButton}>
                     <MaterialIcons name="print" size={24} color="#555" />
                     <Text style={styles.actionText}>Print Receipt</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionButton}>
+                <TouchableOpacity style={styles.actionButton} onPress={handleShareBill}>
                     <MaterialIcons name="share" size={24} color="#555" />
                     <Text style={styles.actionText}>Share</Text>
                 </TouchableOpacity>
@@ -94,7 +145,6 @@ const SaleDetailScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f5f5f5' },
-    // Header styles removed as we use standard navigation header
     scrollContent: { padding: 20 },
     card: {
         backgroundColor: '#fff',
@@ -145,6 +195,34 @@ const styles = StyleSheet.create({
     itemName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
     itemQuantity: { fontSize: 14, color: '#777', marginTop: 2 },
     itemTotal: { fontSize: 16, fontWeight: 'bold', color: '#333' },
+
+    previewContainer: {
+        backgroundColor: '#f8f9fa',
+        padding: 10,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: '#eee',
+        marginBottom: 10,
+    },
+    previewText: {
+        fontFamily: 'monospace',
+        fontSize: 12,
+        color: '#333',
+    },
+    copyButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 10,
+        borderWidth: 1,
+        borderColor: '#007bff',
+        borderRadius: 5,
+    },
+    copyButtonText: {
+        color: '#007bff',
+        marginLeft: 8,
+        fontWeight: 'bold',
+    },
 
     actions: {
         flexDirection: 'row',

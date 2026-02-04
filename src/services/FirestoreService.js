@@ -142,6 +142,7 @@ export const addBulkSales = async (uid, cartItems, paymentMethod) => {
 
     try {
         await batch.commit();
+        return saleRef.id; // Return ID for UI use
     } catch (error) {
         console.error("Error processing bulk sales: ", error);
         throw error;
