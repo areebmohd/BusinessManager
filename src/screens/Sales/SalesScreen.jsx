@@ -122,7 +122,8 @@ const SalesScreen = ({ navigation }) => {
                     ]}>
                         {item.paymentMethod === 'paid' ? 'PAID' :
                             item.paymentMethod === 'unpaid' ? 'NOT PAID' :
-                                item.paymentMethod ? item.paymentMethod.toUpperCase() : 'UNKNOWN'}
+                                (typeof item.paymentMethod === 'string' ? item.paymentMethod.toUpperCase() :
+                                    item.paymentMethod?.paymentMethod ? item.paymentMethod.paymentMethod.toUpperCase() : 'UNKNOWN')}
                     </Text>
                 </View>
                 <Text style={styles.date}>{dateStr}</Text>

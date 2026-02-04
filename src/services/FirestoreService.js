@@ -111,11 +111,24 @@ export const addBulkSales = async (uid, cartItems, paymentMethod) => {
         total: item.quantity * item.sellingPrice
     }));
 
+    // Handle paymentMethod being either a string (legacy) or an object (new sale info)
+    let paymentStatus = 'paid';
+    let extraMetadata = {};
+
+    if (typeof paymentMethod === 'object' && paymentMethod !== null) {
+        paymentStatus = paymentMethod.paymentMethod || 'paid';
+        extraMetadata = { ...paymentMethod };
+        delete extraMetadata.paymentMethod; // Avoid duplication if we want
+    } else {
+        paymentStatus = paymentMethod || 'paid';
+    }
+
     batch.set(saleRef, {
         items: saleItems,
         totalAmount: totalAmount,
-        paymentMethod: paymentMethod, // 'paid', 'unpaid', 'upi'
+        paymentMethod: paymentStatus, // 'paid', 'unpaid', 'upi'
         buyerRef: '', // Future use
+        ...extraMetadata, // Spread buyer info (name, number)
         timestamp: firestore.FieldValue.serverTimestamp(),
     });
 

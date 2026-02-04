@@ -9,8 +9,6 @@ const CreateSaleScreen = ({ navigation }) => {
     const [items, setItems] = useState([]);
     const [cart, setCart] = useState([]);
     const [search, setSearch] = useState('');
-    const [paymentStatus, setPaymentStatus] = useState('paid'); // 'paid', 'upi', 'unpaid'
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!user) return;
@@ -76,22 +74,6 @@ const CreateSaleScreen = ({ navigation }) => {
 
     const calculateTotal = () => {
         return cart.reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0);
-    };
-
-    const handleCompleteSale = async () => {
-        if (cart.length === 0) return;
-
-        setLoading(true);
-        try {
-            await addBulkSales(user.uid, cart, paymentStatus);
-            Alert.alert("Success", "Sale recorded successfully!", [
-                { text: "OK", onPress: () => navigation.goBack() }
-            ]);
-        } catch (error) {
-            Alert.alert("Error", "Could not complete sale. Please try again.");
-        } finally {
-            setLoading(false);
-        }
     };
 
     const renderItemCard = ({ item }) => {
@@ -163,34 +145,16 @@ const CreateSaleScreen = ({ navigation }) => {
                     <Text style={styles.totalValue}>₹{calculateTotal()}</Text>
                 </View>
 
-                <View style={styles.paymentSection}>
-                    <Text style={styles.label}>Payment Method</Text>
-                    <View style={styles.paymentRow}>
-                        {[
-                            { id: 'paid', label: 'Cash' },
-                            { id: 'upi', label: 'UPI' },
-                            { id: 'unpaid', label: 'Pending' }
-                        ].map(option => (
-                            <TouchableOpacity
-                                key={option.id}
-                                style={[styles.paymentOption, paymentStatus === option.id && styles.activePayment]}
-                                onPress={() => setPaymentStatus(option.id)}
-                            >
-                                <Text style={[styles.paymentText, paymentStatus === option.id && styles.activePaymentText]}>
-                                    {option.label}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                </View>
-
                 <TouchableOpacity
-                    style={[styles.completeButton, (cart.length === 0 || loading) && styles.disabledButton]}
-                    onPress={handleCompleteSale}
-                    disabled={cart.length === 0 || loading}
+                    style={[styles.completeButton, (cart.length === 0) && styles.disabledButton]}
+                    onPress={() => {
+                        if (cart.length === 0) return;
+                        navigation.navigate('SaleInfo', { cart, totalAmount: calculateTotal() });
+                    }}
+                    disabled={cart.length === 0}
                 >
                     <Text style={styles.completeButtonText}>
-                        {loading ? "Processing..." : `Complete Sale (₹${calculateTotal()})`}
+                        Next (₹{calculateTotal()})
                     </Text>
                 </TouchableOpacity>
             </View>

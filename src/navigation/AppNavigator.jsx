@@ -6,6 +6,7 @@ import AddItemScreen from '../screens/Inventory/AddItemScreen';
 import ItemDetailScreen from '../screens/Inventory/ItemDetailScreen';
 import CreateSaleScreen from '../screens/Sales/CreateSaleScreen';
 import SaleDetailScreen from '../screens/Sales/SaleDetailScreen';
+import SaleInfoScreen from '../screens/Sales/SaleInfoScreen';
 import EditItemScreen from '../screens/Inventory/EditItemScreen';
 import { useAuth } from '../context/AuthContext';
 import { View, ActivityIndicator } from 'react-native';
@@ -55,6 +56,11 @@ const AppNavigator = () => {
                         name="SaleDetail"
                         component={SaleDetailScreen}
                         options={{ headerShown: true, title: 'Sale Details' }}
+                    />
+                    <Stack.Screen
+                        name="SaleInfo"
+                        component={SaleInfoScreen}
+                        options={{ headerShown: true, title: 'Sale Information' }}
                     />
                 </>
             )}
