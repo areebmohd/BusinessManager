@@ -1,11 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, ActivityIndicator, Modal } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { addBulkSales, subscribeToSettings } from '../../services/FirestoreService';
 import { generateBillText } from '../../utils/BillUtils';
 import { shareBillToWhatsApp } from '../../utils/WhatsAppUtils';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import QRCode from 'react-native-qrcode-svg';
 
 const SaleInfoScreen = ({ route, navigation }) => {
     const { user } = useAuth();
@@ -17,23 +17,30 @@ const SaleInfoScreen = ({ route, navigation }) => {
     const [loading, setLoading] = useState(false);
     const [saleCompleted, setSaleCompleted] = useState(false);
 
-    // For sharing
+    // For sharing & UPI
     const [businessInfo, setBusinessInfo] = useState({});
     const [lastSale, setLastSale] = useState(null);
+    const [showQR, setShowQR] = useState(false);
 
     useEffect(() => {
         const unsubscribe = subscribeToSettings(user.uid, (settings) => {
-            setBusinessInfo(settings || {});
+            const info = settings || {};
+            // Ensure nested structure is flattened or handled consistent with BillUtils 
+            // Currently BillUtils handles nested details. Let's start storing businessInfo.
+            // If settings has businessDetails, we might want to access that for UPI ID.
+            if (settings && settings.businessDetails) {
+                // Merge businessDetails into the top level for easier access if preferred, 
+                // or just keep structure.
+                setBusinessInfo({ ...settings, ...settings.businessDetails });
+            } else {
+                setBusinessInfo(settings || {});
+            }
         });
         return unsubscribe;
     }, []);
 
-    const handleCompleteSale = async () => {
-        if (!buyerName) {
-            Alert.alert("Required", "Please enter buyer name.");
-            return;
-        }
-
+    const finalizeSale = async () => {
+        // Validation handled in wrapper
         setLoading(true);
         try {
             let storedPaymentMethod = 'paid';
@@ -75,7 +82,24 @@ const SaleInfoScreen = ({ route, navigation }) => {
             Alert.alert("Error", "Failed to record sale.");
         } finally {
             setLoading(false);
+            setShowQR(false); // Close QR if open
         }
+    };
+
+    const handleCompleteSaleCheck = async () => {
+        if (!buyerName) {
+            Alert.alert("Required", "Please enter buyer name.");
+            return;
+        }
+
+        // Check for UPI flow
+        if (paymentMethod === 'UPI' && businessInfo.upiId) {
+            setShowQR(true);
+            return;
+        }
+
+        // Proceed directly if not UPI or no UPI ID configured
+        await finalizeSale();
     };
 
     const handleShareBill = () => {
@@ -103,6 +127,11 @@ const SaleInfoScreen = ({ route, navigation }) => {
             </View>
         );
     }
+
+    // UPI QR Value: upi://pay?pa=URI&pn=NAME&am=AMOUNT&cu=INR
+    const qrValue = businessInfo.upiId
+        ? `upi://pay?pa=${businessInfo.upiId}&pn=${encodeURIComponent(businessInfo.businessName || 'Merchant')}&am=${totalAmount}&cu=INR`
+        : '';
 
     return (
         <ScrollView style={styles.container}>
@@ -151,11 +180,48 @@ const SaleInfoScreen = ({ route, navigation }) => {
 
             <TouchableOpacity
                 style={styles.completeButton}
-                onPress={handleCompleteSale}
+                onPress={handleCompleteSaleCheck}
                 disabled={loading}
             >
                 {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.completeButtonText}>Complete Sale</Text>}
             </TouchableOpacity>
+
+            {/* UPI QR Modal */}
+            <Modal
+                visible={showQR}
+                transparent={true}
+                animationType="slide"
+                onRequestClose={() => setShowQR(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Scan to Pay</Text>
+                        <Text style={styles.modalAmount}>₹{totalAmount}</Text>
+
+                        <View style={styles.qrContainer}>
+                            {qrValue ? (
+                                <QRCode
+                                    value={qrValue}
+                                    size={200}
+                                    color="black"
+                                    backgroundColor="white"
+                                />
+                            ) : (
+                                <Text>Invalid UPI ID</Text>
+                            )}
+                        </View>
+                        <Text style={styles.modalSubtitle}>Paying to: {businessInfo.businessName || businessInfo.upiId}</Text>
+
+                        <TouchableOpacity style={styles.doneButton} onPress={finalizeSale}>
+                            <Text style={styles.doneButtonText}>Done</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.cancelButton} onPress={() => setShowQR(false)}>
+                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </ScrollView>
     );
 };
@@ -187,7 +253,19 @@ const styles = StyleSheet.create({
     shareButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginLeft: 10 },
 
     homeButton: { padding: 15, backgroundColor: '#e3f2fd', borderRadius: 10, width: '60%', alignItems: 'center' },
-    homeButtonText: { color: '#007bff', fontSize: 16, fontWeight: 'bold' }
+    homeButtonText: { color: '#007bff', fontSize: 16, fontWeight: 'bold' },
+
+    // Modal Styles
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+    modalContent: { width: '85%', backgroundColor: '#fff', borderRadius: 20, padding: 30, alignItems: 'center', elevation: 5 },
+    modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#333', marginBottom: 10 },
+    modalAmount: { fontSize: 36, fontWeight: 'bold', color: '#28a745', marginBottom: 20 },
+    qrContainer: { padding: 10, backgroundColor: '#fff', borderRadius: 10, elevation: 2, marginBottom: 20 },
+    modalSubtitle: { fontSize: 14, color: '#666', marginBottom: 30, textAlign: 'center' },
+    doneButton: { backgroundColor: '#007bff', paddingVertical: 15, paddingHorizontal: 40, borderRadius: 30, width: '100%', alignItems: 'center', marginBottom: 10 },
+    doneButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+    cancelButton: { padding: 15 },
+    cancelButtonText: { color: '#666', fontSize: 16 }
 });
 
 export default SaleInfoScreen;
