@@ -352,7 +352,6 @@ const DashboardScreen = ({ navigation }) => {
                     </View>
                     <View style={[styles.card, { backgroundColor: '#e0f7fa' }]}>
                         <Text style={styles.cardLabel}>Stock Value</Text>
-                        <Text style={[styles.cardLabel, { fontSize: 10 }]}>(Cost)</Text>
                         <Text style={[styles.cardValue, { color: '#006064' }]}>₹{metrics.totalStockValue}</Text>
                     </View>
                     <View style={[styles.card, { backgroundColor: '#ffebee' }]}>
@@ -362,7 +361,7 @@ const DashboardScreen = ({ navigation }) => {
                 </View>
 
                 {/* 4. SALES SNAPSHOT (ALL TIME) */}
-                <Text style={styles.sectionTitle}>Sales Snapshot (All Time)</Text>
+                <Text style={styles.sectionTitle}>Sales Snapshot</Text>
                 <View style={[styles.statsGrid, { marginBottom: 5 }]}>
                     <View style={[styles.card, { backgroundColor: '#e1f5fe' }]}>
                         <Text style={styles.cardLabel}>Total Sales</Text>

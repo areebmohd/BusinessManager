@@ -5,6 +5,8 @@ import TabNavigator from './TabNavigator';
 import AddItemScreen from '../screens/Inventory/AddItemScreen';
 import ItemDetailScreen from '../screens/Inventory/ItemDetailScreen';
 import CreateSaleScreen from '../screens/Sales/CreateSaleScreen';
+import SaleDetailScreen from '../screens/Sales/SaleDetailScreen';
+import EditItemScreen from '../screens/Inventory/EditItemScreen';
 import { useAuth } from '../context/AuthContext';
 import { View, ActivityIndicator } from 'react-native';
 
@@ -40,9 +42,19 @@ const AppNavigator = () => {
                         options={{ headerShown: true, title: 'Item Details' }}
                     />
                     <Stack.Screen
+                        name="EditItem"
+                        component={EditItemScreen}
+                        options={{ headerShown: true, title: 'Edit Item' }}
+                    />
+                    <Stack.Screen
                         name="CreateSale"
                         component={CreateSaleScreen}
                         options={{ headerShown: true, title: 'New Sale' }}
+                    />
+                    <Stack.Screen
+                        name="SaleDetail"
+                        component={SaleDetailScreen}
+                        options={{ headerShown: true, title: 'Sale Details' }}
                     />
                 </>
             )}

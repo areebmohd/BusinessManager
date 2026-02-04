@@ -89,7 +89,10 @@ const SalesScreen = ({ navigation }) => {
         const dateStr = item.timestamp?.toDate ? item.timestamp.toDate().toLocaleString() : 'Just now';
 
         return (
-            <View style={styles.card}>
+            <TouchableOpacity
+                style={styles.card}
+                onPress={() => navigation.navigate('SaleDetail', { sale: item })}
+            >
                 <View style={styles.row}>
                     <View style={{ flex: 1 }}>
                         {isGrouped ? (
@@ -123,7 +126,7 @@ const SalesScreen = ({ navigation }) => {
                     </Text>
                 </View>
                 <Text style={styles.date}>{dateStr}</Text>
-            </View>
+            </TouchableOpacity>
         );
     };
 

@@ -33,7 +33,7 @@ const EditItemScreen = ({ route, navigation }) => {
                 description
             });
             Alert.alert('Success', 'Item updated successfully', [
-                { text: 'OK', onPress: () => navigation.navigate('InventoryList') } // Go back to list, details will update via subscription
+                { text: 'OK', onPress: () => navigation.navigate('Main', { screen: 'Inventory' }) } // Go back to list, details will update via subscription
             ]);
         } catch (error) {
             Alert.alert('Error', 'Failed to update item');
