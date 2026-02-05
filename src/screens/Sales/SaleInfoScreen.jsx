@@ -227,45 +227,115 @@ const SaleInfoScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f5f5', padding: 20 },
-    header: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, color: '#333', marginTop: 10 },
+    container: { flex: 1, backgroundColor: '#F5F7FA', padding: 20 }, // Updated background
+    header: { fontSize: 20, fontWeight: '800', marginBottom: 15, color: '#111827', marginTop: 10 },
     formGroup: { marginBottom: 20 },
-    label: { fontSize: 14, color: '#666', marginBottom: 5 },
-    input: { backgroundColor: '#fff', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#ddd', fontSize: 16 },
+    label: { fontSize: 14, color: '#374151', marginBottom: 8, fontWeight: '600' },
+    input: {
+        backgroundColor: '#FFFFFF',
+        padding: 14,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        fontSize: 16,
+        color: '#111827'
+    },
 
     paymentContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
-    paymentOption: { flex: 1, padding: 15, alignItems: 'center', backgroundColor: '#fff', borderRadius: 8, marginHorizontal: 5, borderWidth: 1, borderColor: '#ddd' },
+    paymentOption: {
+        flex: 1,
+        padding: 16,
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        marginHorizontal: 5,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        elevation: 1
+    },
     activePayment: { backgroundColor: '#007bff', borderColor: '#007bff' },
-    paymentText: { fontWeight: 'bold', color: '#555' },
-    activePaymentText: { color: '#fff' },
+    paymentText: { fontWeight: '700', color: '#6B7280' },
+    activePaymentText: { color: '#FFFFFF' },
 
-    summary: { alignItems: 'center', marginBottom: 30, padding: 20, backgroundColor: '#fff', borderRadius: 10 },
-    summaryText: { fontSize: 16, color: '#666' },
-    totalAmount: { fontSize: 32, fontWeight: 'bold', color: '#28a745', marginTop: 5 },
+    summary: {
+        alignItems: 'center',
+        marginBottom: 30,
+        padding: 24,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10
+    },
+    summaryText: { fontSize: 16, color: '#6B7280', fontWeight: '500' },
+    totalAmount: { fontSize: 36, fontWeight: '800', color: '#007bff', marginTop: 8 },
 
-    completeButton: { backgroundColor: '#28a745', padding: 18, borderRadius: 10, alignItems: 'center', elevation: 3 },
-    completeButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+    completeButton: {
+        backgroundColor: '#007bff', // Match theme
+        padding: 18,
+        borderRadius: 16,
+        alignItems: 'center',
+        elevation: 4,
+        shadowColor: '#007bff',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8
+    },
+    completeButtonText: { color: '#fff', fontSize: 18, fontWeight: '700' },
 
     successContainer: { alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: 50 },
-    successText: { fontSize: 24, fontWeight: 'bold', color: '#333', marginTop: 20, marginBottom: 40 },
+    successText: { fontSize: 28, fontWeight: '800', color: '#111827', marginTop: 20, marginBottom: 40 },
 
-    shareButton: { flexDirection: 'row', backgroundColor: '#25D366', padding: 15, borderRadius: 10, width: '80%', alignItems: 'center', justifyContent: 'center', marginBottom: 20, elevation: 2 },
-    shareButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginLeft: 10 },
+    shareButton: {
+        flexDirection: 'row',
+        backgroundColor: '#25D366',
+        padding: 16,
+        borderRadius: 16,
+        width: '90%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
+        elevation: 3
+    },
+    shareButtonText: { color: '#fff', fontSize: 16, fontWeight: '700', marginLeft: 10 },
 
-    homeButton: { padding: 15, backgroundColor: '#e3f2fd', borderRadius: 10, width: '60%', alignItems: 'center' },
-    homeButtonText: { color: '#007bff', fontSize: 16, fontWeight: 'bold' },
+    homeButton: {
+        padding: 16,
+        backgroundColor: '#E3F2FD',
+        borderRadius: 16,
+        width: '70%',
+        alignItems: 'center'
+    },
+    homeButtonText: { color: '#007bff', fontSize: 16, fontWeight: '700' },
 
     // Modal Styles
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-    modalContent: { width: '85%', backgroundColor: '#fff', borderRadius: 20, padding: 30, alignItems: 'center', elevation: 5 },
-    modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#333', marginBottom: 10 },
-    modalAmount: { fontSize: 36, fontWeight: 'bold', color: '#28a745', marginBottom: 20 },
-    qrContainer: { padding: 10, backgroundColor: '#fff', borderRadius: 10, elevation: 2, marginBottom: 20 },
-    modalSubtitle: { fontSize: 14, color: '#666', marginBottom: 30, textAlign: 'center' },
-    doneButton: { backgroundColor: '#007bff', paddingVertical: 15, paddingHorizontal: 40, borderRadius: 30, width: '100%', alignItems: 'center', marginBottom: 10 },
-    doneButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+    modalContent: {
+        width: '85%',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 24,
+        padding: 30,
+        alignItems: 'center',
+        elevation: 10
+    },
+    modalTitle: { fontSize: 22, fontWeight: '700', color: '#111827', marginBottom: 10 },
+    modalAmount: { fontSize: 36, fontWeight: '800', color: '#007bff', marginBottom: 20 },
+    qrContainer: { padding: 12, backgroundColor: '#FFFFFF', borderRadius: 16, elevation: 2, marginBottom: 20 },
+    modalSubtitle: { fontSize: 14, color: '#6B7280', marginBottom: 30, textAlign: 'center' },
+    doneButton: {
+        backgroundColor: '#007bff',
+        paddingVertical: 15,
+        paddingHorizontal: 40,
+        borderRadius: 30,
+        width: '100%',
+        alignItems: 'center',
+        marginBottom: 10
+    },
+    doneButtonText: { color: '#fff', fontSize: 18, fontWeight: '700' },
     cancelButton: { padding: 15 },
-    cancelButtonText: { color: '#666', fontSize: 16 }
+    cancelButtonText: { color: '#6B7280', fontSize: 16, fontWeight: '600' }
 });
 
 export default SaleInfoScreen;

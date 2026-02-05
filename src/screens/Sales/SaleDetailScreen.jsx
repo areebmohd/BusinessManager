@@ -162,60 +162,69 @@ const SaleDetailScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f5f5' },
+    container: { flex: 1, backgroundColor: '#F5F7FA' }, // Updated background
     scrollContent: { padding: 20 },
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 10,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
         padding: 20,
         marginBottom: 20,
-        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
     },
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 15,
+        marginBottom: 16,
     },
-    sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
+    sectionTitle: { fontSize: 18, fontWeight: '700', color: '#111827' },
     statusBadge: {
         paddingHorizontal: 10,
         paddingVertical: 4,
-        borderRadius: 12,
+        borderRadius: 8,
     },
-    paidBadge: { backgroundColor: '#e8f5e9' },
-    unpaidBadge: { backgroundColor: '#ffebee' },
-    upiBadge: { backgroundColor: '#e3f2fd' },
+    paidBadge: { backgroundColor: '#E8F5E9' },
+    unpaidBadge: { backgroundColor: '#FFEBEE' },
+    upiBadge: { backgroundColor: '#E3F2FD' },
 
-    statusText: { fontSize: 12, fontWeight: 'bold' },
-    paidText: { color: '#388e3c' },
-    unpaidText: { color: '#d32f2f' },
-    upiText: { color: '#1976d2' },
+    statusText: { fontSize: 12, fontWeight: '700' },
+    paidText: { color: '#2E7D32' },
+    unpaidText: { color: '#D32F2F' },
+    upiText: { color: '#007bff' },
 
     row: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginVertical: 5,
+        marginVertical: 6,
     },
-    label: { fontSize: 16, color: '#666' },
-    value: { fontSize: 16, fontWeight: '500', color: '#333' },
-    totalValue: { fontSize: 24, fontWeight: 'bold', color: '#2e7d32' },
-    divider: { height: 1, backgroundColor: '#eee', marginVertical: 10 },
+    label: { fontSize: 15, color: '#6B7280', fontWeight: '500' },
+    value: { fontSize: 16, fontWeight: '600', color: '#111827' },
+    totalValue: { fontSize: 24, fontWeight: '800', color: '#007bff' },
+    divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 12 },
 
     markPaidButton: {
         flexDirection: 'row',
         backgroundColor: '#28a745',
-        padding: 10,
-        borderRadius: 8,
+        padding: 12,
+        borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
         marginVertical: 15,
+        shadowColor: '#28a745',
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3
     },
     markPaidText: {
         color: '#fff',
-        fontWeight: 'bold',
+        fontWeight: '700',
         marginLeft: 8,
+        fontSize: 15
     },
 
     itemRow: {
@@ -225,48 +234,51 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     itemInfo: { flex: 1 },
-    itemName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-    itemQuantity: { fontSize: 14, color: '#777', marginTop: 2 },
-    itemTotal: { fontSize: 16, fontWeight: 'bold', color: '#333' },
+    itemName: { fontSize: 16, fontWeight: '700', color: '#111827' },
+    itemQuantity: { fontSize: 14, color: '#6B7280', marginTop: 2 },
+    itemTotal: { fontSize: 16, fontWeight: '700', color: '#111827' },
 
     previewContainer: {
-        backgroundColor: '#f8f9fa',
-        padding: 10,
-        borderRadius: 5,
+        backgroundColor: '#F9FAFB',
+        padding: 12,
+        borderRadius: 12,
         borderWidth: 1,
-        borderColor: '#eee',
-        marginBottom: 10,
+        borderColor: '#E5E7EB',
+        marginBottom: 12,
     },
     previewText: {
         fontFamily: 'monospace',
         fontSize: 12,
-        color: '#333',
+        color: '#374151',
     },
     copyButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 10,
+        padding: 12,
         borderWidth: 1,
         borderColor: '#007bff',
-        borderRadius: 5,
+        borderRadius: 12,
+        backgroundColor: '#F0F9FF',
     },
     copyButtonText: {
         color: '#007bff',
         marginLeft: 8,
-        fontWeight: 'bold',
+        fontWeight: '700',
     },
 
     actions: {
         flexDirection: 'row',
         justifyContent: 'space-around',
         marginTop: 10,
+        marginBottom: 30
     },
     actionButton: {
         alignItems: 'center',
         justifyContent: 'center',
+        padding: 10,
     },
-    actionText: { marginTop: 5, color: '#555', fontSize: 12 },
+    actionText: { marginTop: 6, color: '#6B7280', fontSize: 13, fontWeight: '500' },
 });
 
 export default SaleDetailScreen;

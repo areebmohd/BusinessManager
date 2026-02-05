@@ -120,17 +120,17 @@ const CreateSaleScreen = ({ navigation }) => {
         <View style={styles.container}>
             <View style={styles.searchSection}>
                 <View style={styles.searchContainer}>
-                    <MaterialIcons name="search" size={24} color="#777" />
+                    <MaterialIcons name="search" size={24} color="#007bff" />
                     <TextInput
                         style={styles.searchInput}
                         placeholder="Search items..."
-                        placeholderTextColor="#999"
+                        placeholderTextColor="#6B7280"
                         value={search}
                         onChangeText={setSearch}
                     />
                     {search.length > 0 && (
                         <TouchableOpacity onPress={() => setSearch('')}>
-                            <MaterialIcons name="close" size={20} color="#777" />
+                            <MaterialIcons name="close" size={20} color="#6B7280" />
                         </TouchableOpacity>
                     )}
                     <TouchableOpacity onPress={() => setScannerVisible(true)} style={{ marginLeft: 10 }}>
@@ -179,57 +179,76 @@ const CreateSaleScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f5f5' },
-    searchSection: { padding: 15, paddingBottom: 10, backgroundColor: '#f5f5f5' },
+    container: { flex: 1, backgroundColor: '#F5F7FA' }, // Updated background
+    searchSection: { padding: 20, paddingBottom: 10, backgroundColor: '#F5F7FA' }, // Updated padding and bg
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
         borderWidth: 1,
-        borderColor: '#ddd',
-        elevation: 1,
+        borderColor: '#E5E7EB',
+        elevation: 0, // Flat
     },
     searchInput: {
         flex: 1,
-        marginLeft: 10,
+        marginLeft: 12,
         fontSize: 16,
-        color: '#333',
-        paddingVertical: 5,
+        color: '#111827',
+        paddingVertical: 0,
     },
 
-    listContent: { padding: 15, paddingBottom: 10, paddingTop: 0 },
+    listContent: { paddingHorizontal: 20, paddingBottom: 100, paddingTop: 10 }, // Increased bottom padding for footer
     itemCard: {
-        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-        backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 10,
-        elevation: 1, borderWidth: 1, borderColor: 'transparent'
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        padding: 16,
+        borderRadius: 16, // Radius 16
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
+        borderWidth: 1,
+        borderColor: 'transparent'
     },
-    itemCardSelected: { borderColor: '#007bff', backgroundColor: '#f0f8ff' },
-    itemName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-    stock: { fontSize: 12, color: '#666', marginTop: 2 },
-    lowStock: { color: '#d32f2f', fontWeight: 'bold' },
-    price: { fontSize: 15, fontWeight: 'bold', color: '#2e7d32', marginTop: 4 },
+    itemCardSelected: {
+        borderColor: '#007bff',
+        backgroundColor: '#F0F9FF', // Lighter blue bg for selected
+        borderWidth: 1
+    },
+    itemName: { fontSize: 16, fontWeight: '700', color: '#111827' },
+    stock: { fontSize: 13, color: '#6B7280', marginTop: 4, fontWeight: '500' },
+    lowStock: { color: '#D32F2F', fontWeight: 'bold' },
+    price: { fontSize: 16, fontWeight: '800', color: '#111827', marginTop: 4 }, // Dark price
 
-    qtyContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#e0e0e0', borderRadius: 20, padding: 3 },
-    qtyBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#007bff', justifyContent: 'center', alignItems: 'center' },
-    qtyText: { marginHorizontal: 15, fontSize: 16, fontWeight: 'bold', color: '#333' },
+    qtyContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F3F4F6', borderRadius: 20, padding: 4 },
+    qtyBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#007bff', justifyContent: 'center', alignItems: 'center', elevation: 2 },
+    qtyText: { marginHorizontal: 16, fontSize: 16, fontWeight: '700', color: '#111827' },
 
     footer: {
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
         padding: 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
         elevation: 20,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: -2 },
+        shadowOffset: { width: 0, height: -4 },
         shadowOpacity: 0.1,
-        shadowRadius: 5
+        shadowRadius: 10,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
     },
-    totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
-    totalLabel: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-    totalValue: { fontSize: 24, fontWeight: 'bold', color: '#2e7d32' },
+    totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+    totalLabel: { fontSize: 18, fontWeight: '700', color: '#111827' },
+    totalValue: { fontSize: 24, fontWeight: '800', color: '#007bff' },
 
     paymentSection: { marginBottom: 15 },
     label: { fontSize: 14, color: '#666', marginBottom: 8 },
@@ -239,9 +258,19 @@ const styles = StyleSheet.create({
     paymentText: { color: '#333', fontWeight: 'bold' },
     activePaymentText: { color: '#fff' },
 
-    completeButton: { backgroundColor: '#28a745', padding: 15, borderRadius: 10, alignItems: 'center' },
-    disabledButton: { backgroundColor: '#a5d6a7' },
-    completeButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+    completeButton: {
+        backgroundColor: '#007bff', // Match theme
+        padding: 16,
+        borderRadius: 16,
+        alignItems: 'center',
+        shadowColor: '#007bff',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4
+    },
+    disabledButton: { backgroundColor: '#A0A0A0', shadowOpacity: 0, elevation: 0 },
+    completeButtonText: { color: '#fff', fontSize: 18, fontWeight: '700' },
 });
 
 export default CreateSaleScreen;

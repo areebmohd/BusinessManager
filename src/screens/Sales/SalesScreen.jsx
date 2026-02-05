@@ -94,45 +94,65 @@ const SalesScreen = ({ navigation }) => {
         // Format date
         const dateStr = item.timestamp?.toDate ? item.timestamp.toDate().toLocaleString() : 'Just now';
 
+        // Payment Label Logic
+        let paymentLabel = 'UNKNOWN';
+        let paymentStyle = styles.paidBadge; // Default
+        let paymentTextStyle = styles.paidText;
+
+        const method = item.paymentMethod;
+        const normalizedMethod = (typeof method === 'string' ? method : method?.paymentMethod || '').toLowerCase();
+
+        if (normalizedMethod === 'paid') {
+            paymentLabel = 'CASH';
+            paymentStyle = styles.cash;
+            paymentTextStyle = styles.cashText;
+        } else if (normalizedMethod === 'upi') {
+            paymentLabel = 'UPI';
+            paymentStyle = styles.upi;
+            paymentTextStyle = styles.upiText;
+        } else if (normalizedMethod === 'unpaid') {
+            paymentLabel = 'NOT PAID';
+            paymentStyle = styles.unpaid;
+            paymentTextStyle = styles.unpaidText;
+        } else {
+            paymentLabel = normalizedMethod.toUpperCase();
+        }
+
         return (
             <TouchableOpacity
                 style={styles.card}
                 onPress={() => navigation.navigate('SaleDetail', { sale: item })}
             >
-                <View style={styles.row}>
-                    <View style={{ flex: 1 }}>
+                <View style={styles.cardContent}>
+                    {/* Left Column: Items & Details */}
+                    <View style={styles.leftCol}>
                         {isGrouped ? (
-                            // New Format: List items
                             <View>
                                 {item.items.map((subItem, index) => (
                                     <Text key={index} style={styles.itemName}>
-                                        {subItem.itemName} <Text style={styles.details}>(x{subItem.quantity})</Text>
+                                        {subItem.itemName} <Text style={styles.itemQty}>(x{subItem.quantity})</Text>
                                     </Text>
                                 ))}
                             </View>
                         ) : (
-                            // Old Format: Single item
                             <Text style={styles.itemName}>{item.itemName}</Text>
                         )}
+                        <Text style={styles.detailsText}>
+                            {isGrouped ? `${item.items.length} Items` : `${item.quantity} x ₹{item.unitPrice}`}
+                        </Text>
                     </View>
-                    <Text style={styles.amount}>₹{total}</Text>
-                </View>
 
-                <View style={styles.row}>
-                    <Text style={styles.details}>
-                        {isGrouped ? `${item.items.length} Items` : `${item.quantity} x ₹{item.unitPrice}`}
-                    </Text>
-                    <Text style={[styles.paymentMethod,
-                    item.paymentMethod === 'paid' ? styles.cash :
-                        item.paymentMethod === 'unpaid' ? styles.unpaid : styles.upi
-                    ]}>
-                        {item.paymentMethod === 'paid' ? 'PAID' :
-                            item.paymentMethod === 'unpaid' ? 'NOT PAID' :
-                                (typeof item.paymentMethod === 'string' ? item.paymentMethod.toUpperCase() :
-                                    item.paymentMethod?.paymentMethod ? item.paymentMethod.paymentMethod.toUpperCase() : 'UNKNOWN')}
-                    </Text>
+                    {/* Right Column: Price, Payment, Date */}
+                    <View style={styles.rightCol}>
+                        <Text style={styles.amount}>₹{total}</Text>
+
+                        <View style={[styles.paymentBadge, paymentStyle]}>
+                            <Text style={[styles.paymentText, paymentTextStyle]}>{paymentLabel}</Text>
+                        </View>
+
+                        <Text style={styles.date}>{dateStr}</Text>
+                    </View>
                 </View>
-                <Text style={styles.date}>{dateStr}</Text>
             </TouchableOpacity>
         );
     };
@@ -143,17 +163,17 @@ const SalesScreen = ({ navigation }) => {
 
             {/* Search Bar */}
             <View style={styles.searchContainer}>
-                <MaterialIcons name="search" size={24} color="#777" />
+                <MaterialIcons name="search" size={24} color="#007bff" />
                 <TextInput
                     style={styles.searchInput}
                     placeholder="Search by Item or Price..."
-                    placeholderTextColor="#999"
+                    placeholderTextColor="#6B7280"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                 />
                 {searchQuery.length > 0 && (
                     <TouchableOpacity onPress={() => setSearchQuery('')}>
-                        <MaterialIcons name="close" size={20} color="#777" />
+                        <MaterialIcons name="close" size={20} color="#6B7280" />
                     </TouchableOpacity>
                 )}
                 <TouchableOpacity onPress={() => setScannerVisible(true)} style={{ marginLeft: 10 }}>
@@ -224,64 +244,131 @@ const SalesScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f5f5', padding: 20, paddingTop: 10 },
-    header: { fontSize: 26, fontWeight: 'bold', marginBottom: 20, color: '#333' },
+    container: { flex: 1, backgroundColor: '#F5F7FA' }, // Updated background
+    header: { fontSize: 28, fontWeight: '800', marginBottom: 20, color: '#111827', paddingHorizontal: 20, paddingTop: 10, letterSpacing: 0.5 }, // Updated header
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        marginBottom: 10,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        marginHorizontal: 20,
+        marginBottom: 20,
         borderWidth: 1,
-        borderColor: '#ddd',
-        elevation: 1,
+        borderColor: '#E5E7EB',
+        elevation: 0, // Flat search bar
     },
     searchInput: {
         flex: 1,
-        marginLeft: 10,
+        marginLeft: 12,
         fontSize: 16,
-        color: '#333',
-        paddingVertical: 5,
+        color: '#111827',
+        paddingVertical: 0,
     },
     // Filter Chips Styles
     filtersContainer: { marginBottom: 15 },
-    filtersContent: { paddingRight: 10 },
+    filtersContent: { paddingHorizontal: 20, paddingRight: 10 },
     filterChip: {
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: 20,
-        backgroundColor: '#e0e0e0',
+        backgroundColor: '#FFFFFF',
         marginRight: 10,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
     },
-    filterChipSelected: { backgroundColor: '#007bff' },
-    filterChipText: { fontSize: 14, color: '#333', fontWeight: '500' },
-    filterChipTextSelected: { color: '#fff' },
+    filterChipSelected: { backgroundColor: '#007bff', borderColor: '#007bff' },
+    filterChipText: { fontSize: 14, color: '#6B7280', fontWeight: '600' },
+    filterChipTextSelected: { color: '#FFFFFF' },
     center: { alignItems: 'center', marginTop: 50 },
     card: {
-        backgroundColor: '#fff',
-        padding: 15,
-        borderRadius: 8,
-        marginBottom: 10,
-        elevation: 2
+        backgroundColor: '#FFFFFF',
+        padding: 16,
+        borderRadius: 16,
+        marginBottom: 12,
+        marginHorizontal: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
     },
-    row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
-    itemName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-    amount: { fontSize: 16, fontWeight: 'bold', color: '#2e7d32' },
-    details: { fontSize: 14, color: '#666' },
-    paymentMethod: { fontSize: 12, fontWeight: 'bold', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4, overflow: "hidden" },
-    upi: { backgroundColor: '#e3f2fd', color: '#1976d2' },
-    cash: { backgroundColor: '#e8f5e9', color: '#388e3c' },
-    unpaid: { backgroundColor: '#ffebee', color: '#d32f2f' },
-    date: { fontSize: 12, color: '#999', marginTop: 5, textAlign: 'right' },
-    emptyText: { color: '#888', fontSize: 16 },
+    cardContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    leftCol: {
+        flex: 1,
+        justifyContent: 'center',
+        paddingRight: 10,
+    },
+    rightCol: {
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        minWidth: 80,
+    },
+    itemName: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#111827',
+        marginBottom: 4,
+    },
+    itemQty: {
+        fontSize: 13,
+        fontWeight: '500',
+        color: '#6B7280',
+    },
+    detailsText: {
+        fontSize: 13,
+        color: '#6B7280',
+        fontWeight: '500',
+        marginTop: 4,
+    },
+    amount: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#111827',
+        marginBottom: 6,
+    },
+    paymentBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+        marginBottom: 6,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    paymentText: {
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    // Colors for badges
+    cash: { backgroundColor: '#E8F5E9' },
+    cashText: { color: '#2E7D32' },
+    upi: { backgroundColor: '#E3F2FD' },
+    upiText: { color: '#007bff' },
+    unpaid: { backgroundColor: '#FFEBEE' },
+    unpaidText: { color: '#D32F2F' },
+
+    date: {
+        fontSize: 11,
+        color: '#9CA3AF',
+        textAlign: 'right',
+        fontWeight: '500'
+    },
+
+    // FAB
     fab: {
-        position: 'absolute', bottom: 20, right: 20,
-        width: 60, height: 60, borderRadius: 30,
+        position: 'absolute', bottom: 24, right: 24,
+        width: 56, height: 56, borderRadius: 16,
         backgroundColor: '#007bff',
         justifyContent: 'center', alignItems: 'center',
-        elevation: 5
+        elevation: 4,
+        shadowColor: '#007bff',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
     }
 });
 
