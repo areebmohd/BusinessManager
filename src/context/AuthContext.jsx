@@ -25,24 +25,7 @@ export const AuthProvider = ({ children }) => {
         return subscriber; // unsubscribe on unmount
     }, []);
 
-    const signInWithPhoneNumber = async (phoneNumber) => {
-        try {
-            const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
-            return confirmation;
-        } catch (error) {
-            console.error("Error sending code: ", error);
-            throw error;
-        }
-    };
 
-    const confirmCode = async (confirmationResult, code) => {
-        try {
-            await confirmationResult.confirm(code);
-        } catch (error) {
-            console.error("Invalid code: ", error);
-            throw error;
-        }
-    };
 
     const signInWithEmail = async (email, password) => {
         try {
@@ -108,8 +91,6 @@ export const AuthProvider = ({ children }) => {
     const value = React.useMemo(() => ({
         user,
         initializing,
-        signInWithPhoneNumber,
-        confirmCode,
         signInWithEmail,
         signUpWithEmail,
         signInWithGoogle,
