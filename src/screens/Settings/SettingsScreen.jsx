@@ -141,7 +141,7 @@ const SettingsScreen = () => {
 
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Account</Text>
-                    <Text style={styles.infoText}>Logged in as: {user?.phoneNumber}</Text>
+                    <Text style={styles.infoText}>Logged in as: {user?.email || user?.phoneNumber || 'User'}</Text>
 
                     <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                         <MaterialIcons name="logout" size={20} color="#fff" />
