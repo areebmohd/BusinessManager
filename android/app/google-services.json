@@ -12,7 +12,20 @@
           "package_name": "com.businessmanager"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "357903569441-fe3p58dt4a09vpu1m6r4g2aqs8s7dn3m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.businessmanager",
+            "certificate_hash": "0de1fcb9e83e5fad97e4bf31fa07a5f4cea490be"
+          }
+        },
+        {
+          "client_id": "357903569441-td2899br6rfd7hosrgdruq6nofphtli9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBmukorT1iwxU9A45RCk6s1uqP1EosTjF4"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "357903569441-td2899br6rfd7hosrgdruq6nofphtli9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
