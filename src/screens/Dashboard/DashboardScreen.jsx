@@ -253,72 +253,103 @@ const DashboardScreen = ({ navigation }) => {
     }
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
-            <ScrollView style={styles.container}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F7FA' }}>
+            <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
                 <View style={styles.headerContainer}>
-                    <Text style={styles.header}>Dashboard</Text>
-                    {settings?.businessDetails?.businessName ? (
-                        <Text style={styles.businessName}>{settings.businessDetails.businessName}</Text>
-                    ) : null}
+                    <View>
+                        <Text style={styles.header}>Dashboard</Text>
+                        {settings?.businessDetails?.businessName && (
+                            <Text style={styles.businessName}>{settings.businessDetails.businessName}</Text>
+                        )}
+                    </View>
+                    <View style={styles.dateBadge}>
+                        <Text style={styles.dateText}>{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</Text>
+                    </View>
                 </View>
 
                 {/* 1. TODAY'S OVERVIEW */}
                 <Text style={styles.sectionTitle}>Today's Overview</Text>
                 <View style={styles.statsGrid}>
-                    <View style={[styles.card, { backgroundColor: '#e3f2fd' }]}>
-                        <Text style={styles.cardLabel}>Sales</Text>
-                        <Text style={[styles.cardValue, { color: '#1565c0' }]}>₹{metrics.todayRevenue}</Text>
+                    <View style={styles.card}>
+                        <View style={styles.cardHeader}>
+                            <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
+                                <MaterialIcons name="attach-money" size={24} color="#1565C0" />
+                            </View>
+                            <Text style={styles.cardLabel}>Sales</Text>
+                        </View>
+                        <Text style={styles.cardValue}>₹{metrics.todayRevenue.toLocaleString()}</Text>
                     </View>
-                    <View style={[styles.card, { backgroundColor: '#e8f5e9' }]}>
-                        <Text style={styles.cardLabel}>Profit</Text>
-                        <Text style={[styles.cardValue, { color: '#2e7d32' }]}>₹{metrics.todayProfit.toFixed(0)}</Text>
+
+                    <View style={styles.card}>
+                        <View style={styles.cardHeader}>
+                            <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
+                                <MaterialIcons name="trending-up" size={24} color="#2E7D32" />
+                            </View>
+                            <Text style={styles.cardLabel}>Profit</Text>
+                        </View>
+                        <Text style={[styles.cardValue, { color: '#2E7D32' }]}>₹{metrics.todayProfit.toLocaleString()}</Text>
                     </View>
-                    <View style={[styles.card, { backgroundColor: '#ffebee' }]}>
-                        <Text style={styles.cardLabel}>Pending</Text>
-                        <Text style={[styles.cardValue, { color: '#c62828' }]}>₹{metrics.todayPending}</Text>
+                </View>
+
+                {/* Pending Card Separate Row */}
+                <View style={[styles.card, { marginTop: 8 }]}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <View style={[styles.iconContainer, { backgroundColor: '#FFEBEE', width: 40, height: 40 }]}>
+                                <MaterialIcons name="pending-actions" size={20} color="#C62828" />
+                            </View>
+                            <Text style={[styles.cardLabel, { marginLeft: 12, marginBottom: 0 }]}>Pending (Today)</Text>
+                        </View>
+                        <Text style={[styles.cardValue, { fontSize: 20, color: '#C62828' }]}>₹{metrics.todayPending.toLocaleString()}</Text>
                     </View>
                 </View>
 
                 {/* 2. PERFORMANCE */}
-                <Text style={styles.sectionTitle}>Performance</Text>
+                <Text style={styles.sectionTitle}>Performance Insights</Text>
                 <View style={styles.rowCard}>
                     <View style={styles.rowItem}>
                         <Text style={styles.rowLabel}>Weekly Sales</Text>
-                        <Text style={styles.rowValue}>₹{metrics.weeklyRevenue}</Text>
-                        <Text style={[styles.subValue, { color: '#2e7d32' }]}>P: ₹{metrics.weeklyProfit.toFixed(0)}</Text>
+                        <Text style={styles.rowValue}>₹{metrics.weeklyRevenue.toLocaleString()}</Text>
+                        <Text style={[styles.subValue, { color: '#2E7D32' }]}>
+                            <MaterialIcons name="arrow-upward" size={12} /> Profit: ₹{metrics.weeklyProfit.toLocaleString()}
+                        </Text>
                     </View>
-                    <View style={styles.divider} />
+                    <View style={styles.verticalDivider} />
                     <View style={styles.rowItem}>
                         <Text style={styles.rowLabel}>Monthly Sales</Text>
-                        <Text style={styles.rowValue}>₹{metrics.monthlyRevenue}</Text>
-                        <Text style={[styles.subValue, { color: '#2e7d32' }]}>P: ₹{metrics.monthlyProfit.toFixed(0)}</Text>
+                        <Text style={styles.rowValue}>₹{metrics.monthlyRevenue.toLocaleString()}</Text>
+                        <Text style={[styles.subValue, { color: '#2E7D32' }]}>
+                            <MaterialIcons name="arrow-upward" size={12} /> Profit: ₹{metrics.monthlyProfit.toLocaleString()}
+                        </Text>
                     </View>
                 </View>
 
                 {/* MONTHLY SALES CHART */}
                 <Text style={styles.sectionTitle}>Monthly Sales Trend</Text>
-                <View style={[styles.card, { backgroundColor: '#fff', padding: 0, overflow: 'hidden', alignItems: 'center' }]}>
+                <View style={styles.chartCard}>
                     <LineChart
                         data={metrics.chartData}
-                        width={Dimensions.get("window").width - 40} // from react-native
-                        height={220}
+                        width={Dimensions.get("window").width - 32} // Adjusted width
+                        height={240}
                         yAxisLabel="₹"
                         yAxisSuffix=""
-                        yAxisInterval={1} // optional, defaults to 1
+                        yAxisInterval={1}
                         chartConfig={{
                             backgroundColor: "#ffffff",
                             backgroundGradientFrom: "#ffffff",
                             backgroundGradientTo: "#ffffff",
-                            decimalPlaces: 0, // optional, defaults to 2dp
+                            fillShadowGradientFrom: "#1565C0",
+                            fillShadowGradientTo: "#ffffff",
+                            decimalPlaces: 0,
                             color: (opacity = 1) => `rgba(21, 101, 192, ${opacity})`,
-                            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                            labelColor: (opacity = 1) => `rgba(107, 114, 128, ${opacity})`,
                             style: {
                                 borderRadius: 16
                             },
                             propsForDots: {
-                                r: "4",
+                                r: "5",
                                 strokeWidth: "2",
-                                stroke: "#1565c0"
+                                stroke: "#1565C0"
                             }
                         }}
                         bezier
@@ -326,114 +357,421 @@ const DashboardScreen = ({ navigation }) => {
                             marginVertical: 8,
                             borderRadius: 16
                         }}
+                        withInnerLines={false}
+                        withOuterLines={false}
                     />
                 </View>
 
                 {/* BEST SELLERS */}
-                <Text style={styles.sectionTitle}>Best Selling Products</Text>
+                <Text style={styles.sectionTitle}>Top Products</Text>
                 <View style={styles.listSection}>
                     {metrics.bestSellers.length > 0 ? metrics.bestSellers.map((item, index) => (
-                        <View key={index} style={styles.listItem}>
-                            <Text style={styles.rank}>#{index + 1}</Text>
-                            <Text style={styles.itemName}>{item.name}</Text>
-                            <Text style={styles.itemQty}>{item.qty} sold</Text>
+                        <View key={index} style={[styles.listItem, index === metrics.bestSellers.length - 1 && styles.lastItem]}>
+                            <View style={styles.rankBadge}>
+                                <Text style={styles.rankText}>{index + 1}</Text>
+                            </View>
+                            <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                                <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
+                                <Text style={styles.itemSubtext}>Top Performer</Text>
+                            </View>
+                            <Text style={styles.itemQty}>{item.qty} units</Text>
                         </View>
                     )) : (
-                        <Text style={styles.emptyText}>No sales data yet.</Text>
+                        <View style={styles.emptyContainer}>
+                            <MaterialIcons name="inventory-2" size={48} color="#CCC" />
+                            <Text style={styles.emptyText}>No sales recorded yet.</Text>
+                        </View>
                     )}
                 </View>
 
                 {/* 3. INVENTORY SNAPSHOT */}
-                <Text style={styles.sectionTitle}>Inventory Snapshot</Text>
+                <Text style={styles.sectionTitle}>Inventory Status</Text>
                 <View style={styles.statsGrid}>
-                    <View style={[styles.card, { backgroundColor: '#f3e5f5' }]}>
-                        <Text style={styles.cardLabel}>Total Items</Text>
-                        <Text style={[styles.cardValue, { color: '#7b1fa2' }]}>{metrics.totalItems}</Text>
+                    <View style={styles.summaryCard}>
+                        <Text style={styles.summaryValue}>{metrics.totalItems}</Text>
+                        <Text style={styles.summaryLabel}>Total Items</Text>
                     </View>
-                    <View style={[styles.card, { backgroundColor: '#e0f7fa' }]}>
-                        <Text style={styles.cardLabel}>Stock Value</Text>
-                        <Text style={[styles.cardValue, { color: '#006064' }]}>₹{metrics.totalStockValue}</Text>
+                    <View style={styles.summaryCard}>
+                        <Text style={styles.summaryValue}>₹{metrics.totalStockValue.toLocaleString()}</Text>
+                        <Text style={styles.summaryLabel}>Stock Value</Text>
                     </View>
-                    <View style={[styles.card, { backgroundColor: '#ffebee' }]}>
-                        <Text style={styles.cardLabel}>Low Stock</Text>
-                        <Text style={[styles.cardValue, { color: '#c62828' }]}>{metrics.lowStockItems.length}</Text>
-                    </View>
-                </View>
-
-                {/* 4. SALES SNAPSHOT (ALL TIME) */}
-                <Text style={styles.sectionTitle}>Sales Snapshot</Text>
-                <View style={[styles.statsGrid, { marginBottom: 5 }]}>
-                    <View style={[styles.card, { backgroundColor: '#e1f5fe' }]}>
-                        <Text style={styles.cardLabel}>Total Sales</Text>
-                        <Text style={[styles.cardValue, { color: '#0277bd' }]}>₹{metrics.totalRevenue}</Text>
-                    </View>
-                    <View style={[styles.card, { backgroundColor: '#f1f8e9' }]}>
-                        <Text style={styles.cardLabel}>Total Profit</Text>
-                        <Text style={[styles.cardValue, { color: '#558b2f' }]}>₹{metrics.totalProfit.toFixed(0)}</Text>
-                    </View>
-                </View>
-                <View style={[styles.card, { backgroundColor: '#ffebee', width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20 }]}>
-                    <Text style={[styles.cardLabel, { textAlign: 'left', marginBottom: 0 }]}>Total Pending Amount (Due)</Text>
-                    <Text style={[styles.cardValue, { color: '#c62828' }]}>₹{metrics.totalPending}</Text>
                 </View>
 
                 {/* LOW STOCK WARNINGS */}
                 {metrics.lowStockItems.length > 0 && (
-                    <>
-                        <View style={styles.sectionHeader}>
-                            <MaterialIcons name="warning" size={20} color="#d32f2f" />
-                            <Text style={[styles.sectionTitle, { color: '#d32f2f', marginLeft: 5, marginBottom: 0 }]}>Low Stock Alerts</Text>
-                        </View>
+                    <View style={styles.warningSection}>
+                        <Text style={[styles.sectionTitle, { color: '#D32F2F', marginTop: 0 }]}>Low Stock Alerts ({metrics.lowStockItems.length})</Text>
                         <View style={styles.listSection}>
-                            {metrics.lowStockItems.slice(0, 5).map(item => (
-                                <View key={item.id} style={styles.listItem}>
-                                    <Text style={styles.itemName}>{item.name}</Text>
-                                    <Text style={styles.stockWarn}>Only {item.stock} left</Text>
+                            {metrics.lowStockItems.slice(0, 5).map((item, idx) => (
+                                <View key={item.id} style={[styles.listItem, idx === 4 && styles.lastItem]}>
+                                    <View style={[styles.rankBadge, { backgroundColor: '#FFEBEE' }]}>
+                                        <MaterialIcons name="priority-high" size={16} color="#D32F2F" />
+                                    </View>
+                                    <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                                        <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
+                                    </View>
+                                    <View style={styles.countBadge}>
+                                        <Text style={styles.countText}>{item.stock} left</Text>
+                                    </View>
                                 </View>
                             ))}
                             {metrics.lowStockItems.length > 5 && (
-                                <Text style={styles.moreText}>+ {metrics.lowStockItems.length - 5} more items</Text>
+                                <View style={{ padding: 12, alignItems: 'center', borderTopWidth: 1, borderTopColor: '#F3F4F6' }}>
+                                    <Text style={{ color: '#D32F2F', fontSize: 13, fontWeight: '600' }}>
+                                        View {metrics.lowStockItems.length - 5} more alerts
+                                    </Text>
+                                </View>
                             )}
                         </View>
-                    </>
+                    </View>
                 )}
 
-                <View style={{ height: 30 }} />
+                {/* 4. TOTALS (ALL TIME) */}
+                <Text style={styles.sectionTitle}>Business Lifetime Totals</Text>
+                <View style={styles.statsGrid}>
+                    <View style={styles.card}>
+                        <View style={styles.cardHeader}>
+                            <View style={[styles.iconContainer, { backgroundColor: '#E1F5FE' }]}>
+                                <MaterialIcons name="account-balance" size={24} color="#0277BD" />
+                            </View>
+                            <Text style={styles.cardLabel}>All Sales</Text>
+                        </View>
+                        <Text style={styles.cardValue}>₹{metrics.totalRevenue.toLocaleString()}</Text>
+                    </View>
+
+                    <View style={styles.card}>
+                        <View style={styles.cardHeader}>
+                            <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
+                                <MaterialIcons name="monetization-on" size={24} color="#2E7D32" />
+                            </View>
+                            <Text style={styles.cardLabel}>Net Profit</Text>
+                        </View>
+                        <Text style={[styles.cardValue, { color: '#2E7D32' }]}>₹{metrics.totalProfit.toLocaleString()}</Text>
+                    </View>
+                </View>
+
+                <View style={[styles.card, { marginTop: 8 }]}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <View style={[styles.iconContainer, { backgroundColor: '#FFEBEE', width: 40, height: 40 }]}>
+                                <MaterialIcons name="assignment-late" size={20} color="#C62828" />
+                            </View>
+                            <Text style={[styles.cardLabel, { marginLeft: 12, marginBottom: 0 }]}>Total Outstanding (Due)</Text>
+                        </View>
+                        <Text style={[styles.cardValue, { fontSize: 20, color: '#C62828' }]}>₹{metrics.totalPending.toLocaleString()}</Text>
+                    </View>
+                </View>
+
+                <View style={{ height: 40 }} />
             </ScrollView>
         </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f5f5', padding: 20, paddingTop: 10 },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    headerContainer: { marginBottom: 20 },
-    header: { fontSize: 28, fontWeight: 'bold', color: '#333' },
-    businessName: { fontSize: 16, color: '#666', marginTop: 2 },
-
-    sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#444', marginBottom: 10, marginTop: 10 },
-
-    statsGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-    card: { flex: 1, padding: 12, borderRadius: 12, marginHorizontal: 4, elevation: 2, alignItems: 'center', justifyContent: 'center' },
-    cardLabel: { fontSize: 12, color: '#555', textAlign: 'center', marginBottom: 4 },
-    cardValue: { fontSize: 18, fontWeight: 'bold' },
-
-    rowCard: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: 12, padding: 15, elevation: 2, marginBottom: 10, justifyContent: 'space-between' },
-    rowItem: { flex: 1, alignItems: 'center' },
-    divider: { width: 1, backgroundColor: '#eee', height: '100%' },
-    rowLabel: { fontSize: 12, color: '#666', marginBottom: 4 },
-    rowValue: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-    subValue: { fontSize: 12, fontWeight: '600', marginTop: 2 },
-
-    listSection: { backgroundColor: '#fff', borderRadius: 12, padding: 10, elevation: 2 },
-    listItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-    rank: { width: 30, fontWeight: 'bold', color: '#888' },
-    itemName: { flex: 1, fontSize: 15, color: '#333' },
-    itemQty: { fontSize: 14, fontWeight: 'bold', color: '#007bff' },
-    stockWarn: { fontSize: 14, fontWeight: 'bold', color: '#d32f2f' },
-    emptyText: { color: '#999', fontStyle: 'italic', textAlign: 'center', padding: 10 },
-    moreText: { textAlign: 'center', color: '#007bff', padding: 10, fontSize: 12 },
-    sectionHeader: { flexDirection: 'row', alignItems: 'center', marginTop: 15, marginBottom: 10 }
+    container: {
+        flex: 1,
+        backgroundColor: '#F5F7FA',
+        padding: 16,
+    },
+    center: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5F7FA'
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 24,
+        marginTop: 8
+    },
+    header: {
+        fontSize: 28,
+        fontWeight: '800',
+        color: '#111827',
+        letterSpacing: 0.5
+    },
+    businessName: {
+        fontSize: 15,
+        color: '#6B7280',
+        fontWeight: '500',
+        marginTop: 4
+    },
+    dateBadge: {
+        backgroundColor: '#E3F2FD',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20
+    },
+    dateText: {
+        color: '#1565C0',
+        fontWeight: '700',
+        fontSize: 14
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#374151',
+        marginBottom: 12,
+        marginTop: 24,
+        marginLeft: 4
+    },
+    statsGrid: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 12
+    },
+    card: {
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12
+    },
+    iconContainer: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12
+    },
+    cardLabel: {
+        fontSize: 14,
+        color: '#6B7280',
+        fontWeight: '600'
+    },
+    cardValue: {
+        fontSize: 24,
+        fontWeight: '800',
+        color: '#111827'
+    },
+    rowCard: {
+        flexDirection: 'row',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12
+    },
+    rowItem: {
+        flex: 1,
+        alignItems: 'center'
+    },
+    verticalDivider: {
+        width: 1,
+        backgroundColor: '#E5E7EB',
+        height: '80%',
+        marginHorizontal: 10
+    },
+    rowLabel: {
+        fontSize: 13,
+        color: '#6B7280',
+        marginBottom: 6,
+        fontWeight: '500'
+    },
+    rowValue: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#111827'
+    },
+    subValue: {
+        fontSize: 12,
+        fontWeight: '600',
+        marginTop: 4,
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    chartCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 0, // remove padding to let chart fill
+        paddingBottom: 10,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
+        overflow: 'hidden'
+    },
+    listSection: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3
+    },
+    listItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F3F4F6'
+    },
+    lastItem: {
+        borderBottomWidth: 0
+    },
+    rankBadge: {
+        width: 24,
+        height: 24,
+        backgroundColor: '#EBF5FF',
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    rankText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: '#1565C0'
+    },
+    itemName: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#374151'
+    },
+    itemSubtext: {
+        fontSize: 12,
+        color: '#9CA3AF',
+        marginTop: 2
+    },
+    itemQty: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#111827'
+    },
+    emptyContainer: {
+        padding: 30,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    emptyText: {
+        color: '#9CA3AF',
+        marginTop: 10,
+        fontSize: 14
+    },
+    summaryCard: {
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+        padding: 16,
+        borderRadius: 16,
+        alignItems: 'flex-start',
+        borderLeftWidth: 4,
+        borderLeftColor: '#7C3AED', // Purple
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+        elevation: 2
+    },
+    summaryValue: {
+        fontSize: 22,
+        fontWeight: '800',
+        color: '#111827',
+        marginBottom: 4
+    },
+    summaryLabel: {
+        fontSize: 13,
+        color: '#6B7280',
+        fontWeight: '500'
+    },
+    warningSection: {
+        marginTop: 24
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12
+    },
+    countBadge: {
+        backgroundColor: '#FFEBEE',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 12,
+        marginLeft: 8
+    },
+    countText: {
+        color: '#D32F2F',
+        fontSize: 12,
+        fontWeight: 'bold'
+    },
+    alertCard: {
+        backgroundColor: '#FFFFFF',
+        width: 140,
+        padding: 12,
+        borderRadius: 12,
+        marginHorizontal: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+        elevation: 2,
+        borderWidth: 1,
+        borderColor: '#FEE2E2'
+    },
+    alertIconBg: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        backgroundColor: '#FFEBEE',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    alertItemName: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#374151',
+        marginBottom: 2
+    },
+    alertStockText: {
+        fontSize: 12,
+        color: '#D32F2F',
+        fontWeight: '700'
+    },
+    warningTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#D32F2F',
+        marginLeft: 8
+    },
+    warningBadge: {
+        backgroundColor: '#FFEBEE',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 12
+    },
+    warningText: {
+        color: '#D32F2F',
+        fontWeight: '700',
+        fontSize: 12
+    },
+    moreText: {
+        textAlign: 'center',
+        color: '#1565C0',
+        padding: 12,
+        fontSize: 13,
+        fontWeight: '600'
+    }
 });
 
 export default DashboardScreen;
