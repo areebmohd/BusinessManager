@@ -74,15 +74,20 @@ const InventoryScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate('ItemDetail', { item })}
             >
                 <View style={styles.cardContent}>
+                    <View style={styles.iconContainer}>
+                        <MaterialIcons name="inventory-2" size={24} color="#007bff" />
+                    </View>
                     <View style={{ flex: 1 }}>
                         <Text style={styles.itemName}>{item.name}</Text>
                         <Text style={styles.itemCategory}>{item.category || 'Uncategorized'}</Text>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
                         <Text style={styles.itemPrice}>₹{item.sellingPrice}</Text>
-                        <Text style={[styles.stockText, isLowStock && styles.lowStock]}>
-                            Stock: {item.stock}
-                        </Text>
+                        <View style={[styles.stockBadge, isLowStock ? styles.lowStockBadge : styles.normalStockBadge]}>
+                            <Text style={[styles.stockText, isLowStock ? styles.lowStockText : styles.normalStockText]}>
+                                {item.stock} Left
+                            </Text>
+                        </View>
                     </View>
                 </View>
             </TouchableOpacity>
@@ -99,25 +104,30 @@ const InventoryScreen = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.header}>Inventory</Text>
+            <View style={styles.headerContainer}>
+                <View>
+                    <Text style={styles.header}>Inventory</Text>
+                    <Text style={styles.subHeader}>Manage your products</Text>
+                </View>
+            </View>
 
             {/* Search Bar */}
             <View style={styles.searchContainer}>
-                <MaterialIcons name="search" size={24} color="#777" />
+                <MaterialIcons name="search" size={24} color="#007bff" />
                 <TextInput
                     style={styles.searchInput}
                     placeholder="Search items..."
-                    placeholderTextColor="#999"
+                    placeholderTextColor="#6B7280"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                 />
                 {searchQuery.length > 0 && (
                     <TouchableOpacity onPress={() => setSearchQuery('')}>
-                        <MaterialIcons name="close" size={20} color="#777" />
+                        <MaterialIcons name="close" size={20} color="#6B7280" />
                     </TouchableOpacity>
                 )}
-                <TouchableOpacity onPress={() => setScannerVisible(true)} style={{ marginLeft: 10 }}>
-                    <MaterialIcons name="qr-code-scanner" size={24} color="#007bff" />
+                <TouchableOpacity onPress={() => setScannerVisible(true)} style={styles.scanButton}>
+                    <MaterialIcons name="qr-code-scanner" size={22} color="#007bff" />
                 </TouchableOpacity>
             </View>
 
@@ -158,6 +168,7 @@ const InventoryScreen = ({ navigation }) => {
 
             {items.length === 0 ? (
                 <View style={styles.centerContainer}>
+                    <MaterialIcons name="inventory" size={64} color="#E5E7EB" />
                     <Text style={styles.emptyText}>No items in inventory.</Text>
                     <Text style={styles.emptySubText}>Tap + to add your first product.</Text>
                 </View>
@@ -186,129 +197,180 @@ const InventoryScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
-        padding: 20,
+        backgroundColor: '#F5F7FA',
+    },
+    headerContainer: {
+        paddingHorizontal: 20,
         paddingTop: 10,
+        paddingBottom: 20,
     },
     header: {
-        fontSize: 26,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        color: '#333',
+        fontSize: 28,
+        fontWeight: '800',
+        color: '#111827',
+        letterSpacing: 0.5,
+    },
+    subHeader: {
+        fontSize: 15,
+        color: '#6B7280',
+        fontWeight: '500',
+        marginTop: 4,
     },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        marginBottom: 10,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        marginHorizontal: 20,
+        marginBottom: 20,
         borderWidth: 1,
-        borderColor: '#ddd',
-        elevation: 1,
+        borderColor: '#E5E7EB',
+        elevation: 0,
     },
     searchInput: {
         flex: 1,
-        marginLeft: 10,
+        marginLeft: 12,
         fontSize: 16,
-        color: '#333',
-        paddingVertical: 5,
+        color: '#111827',
+        paddingVertical: 0,
+    },
+    scanButton: {
+        padding: 8,
+        backgroundColor: '#E3F2FD',
+        borderRadius: 8,
+        marginLeft: 8,
     },
     categoriesContainer: {
         marginBottom: 10,
     },
     categoriesContent: {
-        paddingVertical: 5,
-        paddingRight: 10,
+        paddingHorizontal: 20,
+        paddingBottom: 10,
     },
     categoryChip: {
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: 20,
-        backgroundColor: '#e0e0e0',
+        backgroundColor: '#FFFFFF',
         marginRight: 10,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
     },
     categoryChipSelected: {
         backgroundColor: '#007bff',
+        borderColor: '#007bff',
     },
     categoryChipText: {
         fontSize: 14,
-        color: '#333',
-        fontWeight: '500',
+        color: '#6B7280',
+        fontWeight: '600',
     },
     categoryChipTextSelected: {
-        color: '#fff',
+        color: '#FFFFFF',
     },
     centerContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#F5F7FA'
     },
     listContent: {
-        padding: 1,
-        paddingBottom: 80,
+        paddingHorizontal: 20,
+        paddingBottom: 100,
     },
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        padding: 15,
-        marginBottom: 10,
-        elevation: 2,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 12,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
     },
     cardContent: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    iconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 12,
+        backgroundColor: '#E3F2FD',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
     },
     itemName: {
         fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
+        fontWeight: '700',
+        color: '#111827',
+        marginBottom: 4,
     },
     itemCategory: {
-        fontSize: 14,
-        color: '#777',
-        marginTop: 2,
+        fontSize: 13,
+        color: '#6B7280',
+        fontWeight: '500',
     },
     itemPrice: {
         fontSize: 16,
-        fontWeight: 'bold',
-        color: '#2e7d32',
+        fontWeight: '800',
+        color: '#111827',
+        alignSelf: 'flex-end',
+        marginBottom: 6,
+    },
+    stockBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    normalStockBadge: {
+        backgroundColor: '#F3F4F6',
+    },
+    lowStockBadge: {
+        backgroundColor: '#FFEBEE',
     },
     stockText: {
-        fontSize: 14,
-        color: '#555',
-        marginTop: 2,
+        fontSize: 12,
+        fontWeight: '700',
     },
-    lowStock: {
-        color: '#d32f2f',
-        fontWeight: 'bold',
+    normalStockText: {
+        color: '#4B5563',
+    },
+    lowStockText: {
+        color: '#D32F2F',
     },
     emptyText: {
         fontSize: 18,
-        color: '#444',
+        fontWeight: '700',
+        color: '#374151',
+        marginTop: 16,
     },
     emptySubText: {
         fontSize: 14,
-        color: '#888',
-        marginTop: 5,
+        color: '#9CA3AF',
+        marginTop: 8,
     },
     fab: {
         position: 'absolute',
-        bottom: 20,
-        right: 20,
-        width: 60,
-        height: 60,
+        bottom: 24,
+        right: 24,
+        width: 56,
+        height: 56,
         backgroundColor: '#007bff',
-        borderRadius: 30,
+        borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        elevation: 5,
+        elevation: 4,
+        shadowColor: '#007bff',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
     },
 });
+
 
 export default InventoryScreen;

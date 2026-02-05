@@ -35,7 +35,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F7FA' }}>
             <ScrollView contentContainerStyle={styles.container}>
                 <View style={styles.headerRow}>
                     <Text style={styles.title}>{item.name}</Text>
@@ -43,52 +43,62 @@ const ItemDetailScreen = ({ route, navigation }) => {
                 </View>
 
                 <View style={styles.card}>
-                    <View style={styles.detailRow}>
-                        <Text style={styles.label}>Selling Price</Text>
-                        <Text style={[styles.value, { color: '#2e7d32' }]}>₹{item.sellingPrice}</Text>
+                    <View style={styles.sectionHeader}>
+                        <MaterialIcons name="info-outline" size={20} color="#6B7280" />
+                        <Text style={styles.sectionHeaderText}>Item Details</Text>
                     </View>
+
+                    <View style={styles.detailRow}>
+                        <View>
+                            <Text style={styles.label}>Selling Price</Text>
+                            <Text style={[styles.value, { color: '#007bff' }]}>₹{item.sellingPrice}</Text>
+                        </View>
+                        <View style={{ alignItems: 'flex-end' }}>
+                            <Text style={styles.label}>Cost Price</Text>
+                            <Text style={styles.value}>₹{item.costPrice || item.purchasePrice || '0.00'}</Text>
+                        </View>
+                    </View>
+
                     <View style={styles.divider} />
+
                     <View style={styles.detailRow}>
-                        <Text style={styles.label}>Purchase Price</Text>
-                        <Text style={styles.value}>₹{item.purchasePrice}</Text>
-                    </View>
-                    <View style={styles.divider} />
-                    <View style={styles.detailRow}>
-                        <Text style={styles.label}>Current Stock</Text>
-                        <Text style={[styles.value, (item.stock < (item.initialStock || 0) * 0.1 && item.stock > 0) ? styles.lowStock : null]}>
-                            {item.stock} units
-                        </Text>
-                    </View>
-                    {item.initialStock !== undefined && (
-                        <>
-                            <View style={styles.divider} />
-                            <View style={styles.detailRow}>
+                        <View>
+                            <Text style={styles.label}>Current Stock</Text>
+                            <Text style={[styles.value, (item.stock < (item.initialStock || 0) * 0.1 && item.stock > 0) ? styles.lowStock : null]}>
+                                {item.stock} units
+                            </Text>
+                        </View>
+                        {item.initialStock !== undefined && (
+                            <View style={{ alignItems: 'flex-end' }}>
                                 <Text style={styles.label}>Initial Stock</Text>
                                 <Text style={styles.value}>{item.initialStock} units</Text>
                             </View>
-                        </>
-                    )}
-                    <View style={styles.divider} />
-                    <View style={styles.detailRow}>
-                        <Text style={styles.label}>Added On</Text>
-                        <Text style={styles.value}>
-                            {item.createdAt?.toDate
-                                ? item.createdAt.toDate().toLocaleDateString()
-                                : 'Unknown'}
-                        </Text>
+                        )}
                     </View>
+
+                    <View style={styles.divider} />
+
                     {item.barcode ? (
-                        <>
-                            <View style={styles.divider} />
-                            <View style={styles.detailRow}>
+                        <View style={styles.detailRow}>
+                            <View>
                                 <Text style={styles.label}>Barcode</Text>
                                 <Text style={styles.value}>{item.barcode}</Text>
                             </View>
-                        </>
+                            <MaterialIcons name="qr-code" size={24} color="#374151" />
+                        </View>
                     ) : null}
+
+                    <View style={styles.divider} />
+
+                    <View style={styles.detailRow}>
+                        <Text style={styles.label}>Added On</Text>
+                        <Text style={styles.dateValue}>
+                            {item.createdAt?.toDate
+                                ? item.createdAt.toDate().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+                                : 'Unknown'}
+                        </Text>
+                    </View>
                 </View>
-
-
 
                 <View style={styles.actions}>
                     <TouchableOpacity
@@ -106,7 +116,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
                         disabled={loading}
                     >
                         <MaterialIcons name="delete" size={20} color="#fff" />
-                        <Text style={styles.buttonText}>Delete Item</Text>
+                        <Text style={styles.buttonText}>Delete</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
@@ -115,53 +125,114 @@ const ItemDetailScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { padding: 20 },
-    headerRow: { marginBottom: 20 },
-    title: { fontSize: 28, fontWeight: 'bold', color: '#333' },
+    container: {
+        padding: 20,
+        paddingBottom: 40,
+    },
+    headerRow: {
+        marginBottom: 24,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: '800',
+        color: '#111827',
+        marginBottom: 8,
+    },
     categoryBadge: {
         alignSelf: 'flex-start',
-        backgroundColor: '#e3f2fd',
-        color: '#1976d2',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 12,
-        fontSize: 14,
-        marginTop: 5,
+        backgroundColor: '#E3F2FD',
+        color: '#007bff',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 16,
+        fontSize: 13,
+        fontWeight: '600',
         overflow: 'hidden',
-        fontWeight: 'bold'
     },
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        padding: 15,
-        marginBottom: 20,
-        elevation: 2,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 20,
+        marginBottom: 24,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    sectionHeaderText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#6B7280',
+        marginLeft: 8,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
     detailRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 10,
+        paddingVertical: 8,
     },
-    divider: { height: 1, backgroundColor: '#eee' },
-    label: { fontSize: 14, color: '#666' },
-    value: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-    lowStock: { color: '#d32f2f' },
-    description: { marginTop: 5, fontSize: 16, color: '#333', lineHeight: 22 },
-    actions: { flexDirection: 'row', justifyContent: 'space-between' },
+    divider: {
+        height: 1,
+        backgroundColor: '#F3F4F6',
+        marginVertical: 12,
+    },
+    label: {
+        fontSize: 13,
+        color: '#6B7280',
+        marginBottom: 4,
+        fontWeight: '500',
+    },
+    value: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#111827',
+    },
+    dateValue: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#374151',
+    },
+    lowStock: {
+        color: '#D32F2F',
+    },
+    actions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 12,
+    },
     button: {
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 15,
-        borderRadius: 10,
-        marginHorizontal: 5,
+        paddingVertical: 16,
+        borderRadius: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
         elevation: 2,
     },
-    editButton: { backgroundColor: '#007bff' },
-    deleteButton: { backgroundColor: '#d32f2f' },
-    buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
+    editButton: {
+        backgroundColor: '#007bff',
+    },
+    deleteButton: {
+        backgroundColor: '#EF4444',
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: '700',
+        fontSize: 16,
+        marginLeft: 8,
+    },
 });
 
 export default ItemDetailScreen;

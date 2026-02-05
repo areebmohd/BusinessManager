@@ -14,13 +14,13 @@ const EditItemScreen = ({ route, navigation }) => {
     const [name, setName] = useState(item.name);
     const [category, setCategory] = useState(item.category || '');
     const [sellingPrice, setSellingPrice] = useState(String(item.sellingPrice));
-    const [purchasePrice, setPurchasePrice] = useState(String(item.purchasePrice));
+    const [costPrice, setCostPrice] = useState(String(item.costPrice || item.purchasePrice || '0'));
     const [stock, setStock] = useState(String(item.stock));
     const [barcode, setBarcode] = useState(item.barcode || '');
     const [scannerVisible, setScannerVisible] = useState(false);
 
     const handleUpdate = async () => {
-        if (!name || !sellingPrice || !purchasePrice || !stock) {
+        if (!name || !sellingPrice || !stock) {
             Alert.alert('Error', 'Please fill all required fields');
             return;
         }
@@ -31,7 +31,7 @@ const EditItemScreen = ({ route, navigation }) => {
                 name,
                 category,
                 sellingPrice: parseFloat(sellingPrice),
-                purchasePrice: parseFloat(purchasePrice),
+                costPrice: parseFloat(costPrice),
                 stock: parseInt(stock),
                 barcode: barcode
             });
@@ -45,9 +45,22 @@ const EditItemScreen = ({ route, navigation }) => {
         }
     };
 
+    if (loading) {
+        return (
+            <View style={styles.center}>
+                <ActivityIndicator size="large" color="#007bff" />
+            </View>
+        );
+    }
+
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F7FA' }}>
             <ScrollView contentContainerStyle={styles.container}>
+                <View style={styles.headerContainer}>
+                    <Text style={styles.header}>Edit Product</Text>
+                    <Text style={styles.subHeader}>Update item details</Text>
+                </View>
+
                 <View style={styles.card}>
                     <Text style={styles.label}>Item Name *</Text>
                     <TextInput
@@ -55,6 +68,7 @@ const EditItemScreen = ({ route, navigation }) => {
                         value={name}
                         onChangeText={setName}
                         placeholder="e.g. Wireless Mouse"
+                        placeholderTextColor="#9CA3AF"
                     />
 
                     <Text style={styles.label}>Category</Text>
@@ -63,6 +77,7 @@ const EditItemScreen = ({ route, navigation }) => {
                         value={category}
                         onChangeText={setCategory}
                         placeholder="e.g. Electronics"
+                        placeholderTextColor="#9CA3AF"
                     />
 
                     <View style={styles.row}>
@@ -74,16 +89,18 @@ const EditItemScreen = ({ route, navigation }) => {
                                 onChangeText={setSellingPrice}
                                 keyboardType="numeric"
                                 placeholder="0.00"
+                                placeholderTextColor="#9CA3AF"
                             />
                         </View>
                         <View style={styles.halfInput}>
-                            <Text style={styles.label}>Purchase Price *</Text>
+                            <Text style={styles.label}>Cost Price</Text>
                             <TextInput
                                 style={styles.input}
-                                value={purchasePrice}
-                                onChangeText={setPurchasePrice}
+                                value={costPrice}
+                                onChangeText={setCostPrice}
                                 keyboardType="numeric"
                                 placeholder="0.00"
+                                placeholderTextColor="#9CA3AF"
                             />
                         </View>
                     </View>
@@ -95,6 +112,7 @@ const EditItemScreen = ({ route, navigation }) => {
                         onChangeText={setStock}
                         keyboardType="numeric"
                         placeholder="0"
+                        placeholderTextColor="#9CA3AF"
                     />
 
                     <Text style={styles.label}>Barcode</Text>
@@ -104,6 +122,7 @@ const EditItemScreen = ({ route, navigation }) => {
                             value={barcode}
                             onChangeText={setBarcode}
                             placeholder="Scan or enter barcode"
+                            placeholderTextColor="#9CA3AF"
                         />
                         <TouchableOpacity style={styles.scanButton} onPress={() => setScannerVisible(true)}>
                             <MaterialIcons name="qr-code-scanner" size={24} color="#007bff" />
@@ -122,11 +141,7 @@ const EditItemScreen = ({ route, navigation }) => {
                     onPress={handleUpdate}
                     disabled={loading}
                 >
-                    {loading ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text style={styles.buttonText}>Save Changes</Text>
-                    )}
+                    <Text style={styles.buttonText}>Save Changes</Text>
                 </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>
@@ -134,31 +149,56 @@ const EditItemScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { padding: 20 },
+    container: {
+        padding: 20,
+        paddingBottom: 40,
+    },
+    center: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5F7FA'
+    },
+    headerContainer: {
+        marginBottom: 24,
+    },
+    header: {
+        fontSize: 24,
+        fontWeight: '800',
+        color: '#111827',
+        marginBottom: 4,
+    },
+    subHeader: {
+        fontSize: 14,
+        color: '#6B7280',
+    },
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        padding: 15,
-        marginBottom: 20,
-        elevation: 2,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 20,
+        marginBottom: 24,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
     },
     label: {
         fontSize: 14,
-        fontWeight: 'bold',
-        color: '#555',
-        marginBottom: 5,
-        marginTop: 10,
+        fontWeight: '600',
+        color: '#374151',
+        marginBottom: 6,
     },
     input: {
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        padding: 12,
+        borderColor: '#E5E7EB',
+        borderRadius: 12,
+        padding: 14,
         fontSize: 16,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#F9FAFB',
+        marginBottom: 20,
+        color: '#111827',
     },
-    row: { flexDirection: 'row', justifyContent: 'space-between' },
-    halfInput: { width: '48%' },
     row: { flexDirection: 'row', justifyContent: 'space-between' },
     halfInput: { width: '48%' },
     barcodeContainer: {
@@ -167,24 +207,28 @@ const styles = StyleSheet.create({
     },
     barcodeInput: {
         flex: 1,
+        marginBottom: 0,
     },
     scanButton: {
         padding: 12,
-        marginLeft: 10,
-        backgroundColor: '#e3f2fd',
-        borderRadius: 8,
+        marginLeft: 12,
+        backgroundColor: '#E3F2FD',
+        borderRadius: 12,
         borderWidth: 1,
-        borderColor: '#007bff',
-        marginBottom: 15, // Match input margin
+        borderColor: '#BFDBFE',
     },
     button: {
-        backgroundColor: '#28a745',
-        padding: 15,
-        borderRadius: 10,
+        backgroundColor: '#007bff',
+        paddingVertical: 16,
+        borderRadius: 12,
         alignItems: 'center',
-        elevation: 3,
+        shadowColor: '#007bff',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
     },
-    buttonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+    buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 });
 
 export default EditItemScreen;
