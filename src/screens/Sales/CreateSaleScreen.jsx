@@ -81,7 +81,7 @@ const CreateSaleScreen = ({ navigation }) => {
         return cart.reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0);
     };
 
-    const renderItemCard = ({ item }) => {
+    const renderItemCard = React.useCallback(({ item }) => {
         const inCart = item.quantity > 0;
         const initialStock = item.initialStock || 0;
         const lowStockThreshold = Math.max(initialStock * 0.1, 0); // 10%
@@ -114,7 +114,7 @@ const CreateSaleScreen = ({ navigation }) => {
                 )}
             </View>
         );
-    };
+    }, [handleQuantityChange]);
 
     return (
         <View style={styles.container}>
@@ -150,6 +150,8 @@ const CreateSaleScreen = ({ navigation }) => {
                 keyExtractor={item => item.id}
                 renderItem={renderItemCard}
                 contentContainerStyle={styles.listContent}
+                initialNumToRender={10}
+                windowSize={5}
             />
 
             {/* Footer Summary */}

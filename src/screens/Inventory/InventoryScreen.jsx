@@ -63,7 +63,7 @@ const InventoryScreen = ({ navigation }) => {
         setFilteredItems(result);
     }, [searchQuery, items, selectedCategory]);
 
-    const renderItem = ({ item }) => {
+    const renderItem = React.useCallback(({ item }) => {
         const initialStock = item.initialStock || 0;
         const lowStockThreshold = Math.max(initialStock * 0.1, 0); // 10%
         const isLowStock = item.stock < lowStockThreshold && item.stock > 0;
@@ -87,7 +87,7 @@ const InventoryScreen = ({ navigation }) => {
                 </View>
             </TouchableOpacity>
         );
-    };
+    }, [navigation]);
 
     if (loading) {
         return (
@@ -167,6 +167,8 @@ const InventoryScreen = ({ navigation }) => {
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}
                     contentContainerStyle={styles.listContent}
+                    initialNumToRender={10}
+                    windowSize={5}
                 />
             )}
 
