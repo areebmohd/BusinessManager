@@ -86,22 +86,30 @@ export const generateBillText = (sale, businessInfo = {}) => {
     billText += `------------------------\n`;
     billText += `TOTAL: ₹${finalTotal}\n\n`;
 
-    // Payment info
-    let methodStr = 'CASH';
+    // Payment info and status
+    let methodDisplay = 'Cash';
+    let statusDisplay = 'Paid';
+
+    let pMethod = '';
     if (typeof paymentMethod === 'string') {
-        methodStr = paymentMethod.toUpperCase();
+        pMethod = paymentMethod.toLowerCase();
     } else if (typeof paymentMethod === 'object' && paymentMethod.paymentMethod) {
-        methodStr = paymentMethod.paymentMethod.toUpperCase();
+        pMethod = paymentMethod.paymentMethod.toLowerCase();
     }
 
-    // Determine status
-    let status = 'PAID';
-    if (methodStr === 'PENDING' || methodStr === 'UNPAID') {
-        status = 'UNPAID';
+    if (pMethod === 'unpaid' || pMethod === 'pending') {
+        methodDisplay = 'Not Paid';
+        statusDisplay = 'Unpaid';
+    } else if (pMethod === 'upi') {
+        methodDisplay = 'UPI';
+        statusDisplay = 'Paid';
+    } else if (pMethod === 'paid' || pMethod === 'cash') {
+        methodDisplay = 'Cash';
+        statusDisplay = 'Paid';
     }
 
-    billText += `Payment: ${methodStr}\n`;
-    billText += `Status: ${status}\n`;
+    billText += `Payment: ${methodDisplay}\n`;
+    billText += `Status: ${statusDisplay}\n`;
     billText += `------------------------\n\n`;
 
     billText += `Thank you for shopping.`;
