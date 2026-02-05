@@ -108,6 +108,7 @@ export const addBulkSales = async (uid, cartItems, paymentMethod) => {
         itemName: item.name,
         quantity: item.quantity,
         unitPrice: item.sellingPrice,
+        unitCostPrice: item.costPrice || 0, // Store cost price for profit calculation
         total: item.quantity * item.sellingPrice,
         barcode: item.barcode || null
     }));
@@ -164,6 +165,18 @@ export const subscribeToSales = (uid, onResult, onError) => {
             },
             onError
         );
+};
+
+export const updateSaleStatus = async (uid, saleId, newStatus) => {
+    try {
+        await getUserDoc(uid).collection('sales').doc(saleId).update({
+            paymentMethod: newStatus,
+            updatedAt: firestore.FieldValue.serverTimestamp(),
+        });
+    } catch (error) {
+        console.error("Error updating sale status: ", error);
+        throw error;
+    }
 };
 
 // --- SETTINGS ---

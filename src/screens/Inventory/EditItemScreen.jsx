@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView,
 import { useAuth } from '../../context/AuthContext';
 import { updateItem } from '../../services/FirestoreService';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import BarcodeScannerModal from '../../components/BarcodeScannerModal';
 
 const EditItemScreen = ({ route, navigation }) => {
     const { user } = useAuth();
@@ -14,7 +16,8 @@ const EditItemScreen = ({ route, navigation }) => {
     const [sellingPrice, setSellingPrice] = useState(String(item.sellingPrice));
     const [purchasePrice, setPurchasePrice] = useState(String(item.purchasePrice));
     const [stock, setStock] = useState(String(item.stock));
-    const [description, setDescription] = useState(item.description || '');
+    const [barcode, setBarcode] = useState(item.barcode || '');
+    const [scannerVisible, setScannerVisible] = useState(false);
 
     const handleUpdate = async () => {
         if (!name || !sellingPrice || !purchasePrice || !stock) {
@@ -30,7 +33,7 @@ const EditItemScreen = ({ route, navigation }) => {
                 sellingPrice: parseFloat(sellingPrice),
                 purchasePrice: parseFloat(purchasePrice),
                 stock: parseInt(stock),
-                description
+                barcode: barcode
             });
             Alert.alert('Success', 'Item updated successfully', [
                 { text: 'OK', onPress: () => navigation.navigate('Main', { screen: 'Inventory' }) } // Go back to list, details will update via subscription
@@ -94,16 +97,25 @@ const EditItemScreen = ({ route, navigation }) => {
                         placeholder="0"
                     />
 
-                    <Text style={styles.label}>Description</Text>
-                    <TextInput
-                        style={[styles.input, styles.textArea]}
-                        value={description}
-                        onChangeText={setDescription}
-                        placeholder="Enter item details..."
-                        multiline
-                        numberOfLines={3}
-                    />
+                    <Text style={styles.label}>Barcode</Text>
+                    <View style={styles.barcodeContainer}>
+                        <TextInput
+                            style={[styles.input, styles.barcodeInput]}
+                            value={barcode}
+                            onChangeText={setBarcode}
+                            placeholder="Scan or enter barcode"
+                        />
+                        <TouchableOpacity style={styles.scanButton} onPress={() => setScannerVisible(true)}>
+                            <MaterialIcons name="qr-code-scanner" size={24} color="#007bff" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
+
+                <BarcodeScannerModal
+                    visible={scannerVisible}
+                    onClose={() => setScannerVisible(false)}
+                    onScan={(code) => setBarcode(code)}
+                />
 
                 <TouchableOpacity
                     style={styles.button}
@@ -147,7 +159,24 @@ const styles = StyleSheet.create({
     },
     row: { flexDirection: 'row', justifyContent: 'space-between' },
     halfInput: { width: '48%' },
-    textArea: { height: 80, textAlignVertical: 'top' },
+    row: { flexDirection: 'row', justifyContent: 'space-between' },
+    halfInput: { width: '48%' },
+    barcodeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    barcodeInput: {
+        flex: 1,
+    },
+    scanButton: {
+        padding: 12,
+        marginLeft: 10,
+        backgroundColor: '#e3f2fd',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#007bff',
+        marginBottom: 15, // Match input margin
+    },
     button: {
         backgroundColor: '#28a745',
         padding: 15,

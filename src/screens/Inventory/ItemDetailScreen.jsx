@@ -88,12 +88,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
                     ) : null}
                 </View>
 
-                {item.description ? (
-                    <View style={styles.card}>
-                        <Text style={styles.label}>Description</Text>
-                        <Text style={styles.description}>{item.description}</Text>
-                    </View>
-                ) : null}
+
 
                 <View style={styles.actions}>
                     <TouchableOpacity

@@ -7,7 +7,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { generateBillText } from '../../utils/BillUtils';
 import { shareBillToWhatsApp } from '../../utils/WhatsAppUtils';
 import { useAuth } from '../../context/AuthContext';
-import { subscribeToSettings } from '../../services/FirestoreService';
+import { subscribeToSettings, updateSaleStatus } from '../../services/FirestoreService';
 
 const SaleDetailScreen = ({ route, navigation }) => {
     const { sale } = route.params;
@@ -27,6 +27,16 @@ const SaleDetailScreen = ({ route, navigation }) => {
 
     const handleShareBill = () => {
         shareBillToWhatsApp(billText, sale.buyerNumber);
+    };
+
+    const handleUpdateStatus = async () => {
+        try {
+            await updateSaleStatus(user.uid, sale.id, 'paid');
+            Alert.alert("Success", "Payment status updated to paid!");
+            navigation.goBack(); // Easy way to refresh list and state is to go back, or we could update local state
+        } catch (error) {
+            Alert.alert("Error", "Failed to update payment status.");
+        }
     };
 
     const handleCopyBill = () => {
@@ -67,6 +77,14 @@ const SaleDetailScreen = ({ route, navigation }) => {
                         </Text>
                     </View>
                 </View>
+
+                {/* Mark as Paid Action */}
+                {lowerMethod === 'unpaid' && (
+                    <TouchableOpacity style={styles.markPaidButton} onPress={handleUpdateStatus}>
+                        <MaterialIcons name="check-circle" size={20} color="#fff" />
+                        <Text style={styles.markPaidText}>Mark as Paid</Text>
+                    </TouchableOpacity>
+                )}
 
                 <View style={styles.row}>
                     <Text style={styles.label}>Date</Text>
@@ -184,6 +202,21 @@ const styles = StyleSheet.create({
     value: { fontSize: 16, fontWeight: '500', color: '#333' },
     totalValue: { fontSize: 24, fontWeight: 'bold', color: '#2e7d32' },
     divider: { height: 1, backgroundColor: '#eee', marginVertical: 10 },
+
+    markPaidButton: {
+        flexDirection: 'row',
+        backgroundColor: '#28a745',
+        padding: 10,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 15,
+    },
+    markPaidText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        marginLeft: 8,
+    },
 
     itemRow: {
         flexDirection: 'row',

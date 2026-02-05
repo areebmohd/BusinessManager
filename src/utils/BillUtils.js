@@ -58,19 +58,19 @@ export const generateBillText = (sale, businessInfo = {}) => {
 
     // Buyer Info
     const buyerName = sale.buyerName || 'Buyer Name';
-    const buyerNumber = sale.buyerNumber || 'Buyer Number';
+    const buyerNumber = sale.buyerNumber || 'Buyer Number: N/A';
 
     // Build the text
     let billText = `${businessName}\n`;
     billText += `${contactNumber}\n`;
-    billText += `------------------------\n`;
+    billText += `------------------------\n\n`;
     billText += `Bill_Id: ${bill_Id}\n`;
     billText += `Date: ${dateStr}\n`;
     billText += `Time: ${timeStr}\n`;
-    billText += `------------------------\n`;
+    billText += `------------------------\n\n`;
     billText += `${buyerName}\n`;
     billText += `${buyerNumber}\n`;
-    billText += `------------------------\n\n\n`;
+    billText += `------------------------\n\n`;
 
     // Items
     saleItems.forEach(item => {
@@ -84,7 +84,7 @@ export const generateBillText = (sale, businessInfo = {}) => {
     });
 
     billText += `------------------------\n`;
-    billText += `TOTAL: ₹${finalTotal}\n\n\n\n`;
+    billText += `TOTAL: ₹${finalTotal}\n\n`;
 
     // Payment info
     let methodStr = 'CASH';
@@ -101,7 +101,8 @@ export const generateBillText = (sale, businessInfo = {}) => {
     }
 
     billText += `Payment: ${methodStr}\n`;
-    billText += `Status: ${status}\n\n\n\n`;
+    billText += `Status: ${status}\n`;
+    billText += `------------------------\n\n`;
 
     billText += `Thank you for shopping.`;
 
