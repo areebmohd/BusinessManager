@@ -18,8 +18,7 @@ const TabNavigator = () => {
             tabBarStyle: {
                 backgroundColor: '#ffffff',
                 height: 65,
-                paddingBottom: 10,
-                paddingTop: 5,
+                paddingTop: 2,
                 borderTopWidth: 1,
                 borderTopColor: '#F3F4F6',
                 elevation: 8,
@@ -31,7 +30,7 @@ const TabNavigator = () => {
             tabBarLabelStyle: {
                 fontSize: 12,
                 fontWeight: '600',
-                marginBottom: 4,
+                marginTop: 2,
             }
         }}>
             <Tab.Screen
