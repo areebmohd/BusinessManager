@@ -142,6 +142,7 @@ const SaleInfoScreen = ({ route, navigation }) => {
                 <TextInput
                     style={styles.input}
                     placeholder="Enter Name"
+                    selectionColor="#007bff"
                     value={buyerName}
                     onChangeText={setBuyerName}
                 />
@@ -153,6 +154,7 @@ const SaleInfoScreen = ({ route, navigation }) => {
                     style={styles.input}
                     placeholder="Enter Number"
                     keyboardType="numeric"
+                    selectionColor="#007bff"
                     value={buyerNumber}
                     onChangeText={setBuyerNumber}
                 />

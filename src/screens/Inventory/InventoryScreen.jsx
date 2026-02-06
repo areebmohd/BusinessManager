@@ -117,6 +117,7 @@ const InventoryScreen = ({ navigation }) => {
                     style={styles.searchInput}
                     placeholder="Search items..."
                     placeholderTextColor="#6B7280"
+                    selectionColor="#007bff"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                 />

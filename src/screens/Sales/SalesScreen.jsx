@@ -168,6 +168,7 @@ const SalesScreen = ({ navigation }) => {
                     style={styles.searchInput}
                     placeholder="Search by Item or Price..."
                     placeholderTextColor="#6B7280"
+                    selectionColor="#007bff"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                 />

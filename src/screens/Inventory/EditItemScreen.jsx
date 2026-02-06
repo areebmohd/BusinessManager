@@ -69,6 +69,7 @@ const EditItemScreen = ({ route, navigation }) => {
                         onChangeText={setName}
                         placeholder="e.g. Wireless Mouse"
                         placeholderTextColor="#9CA3AF"
+                        selectionColor="#007bff"
                     />
 
                     <Text style={styles.label}>Category</Text>
@@ -78,6 +79,7 @@ const EditItemScreen = ({ route, navigation }) => {
                         onChangeText={setCategory}
                         placeholder="e.g. Electronics"
                         placeholderTextColor="#9CA3AF"
+                        selectionColor="#007bff"
                     />
 
                     <View style={styles.row}>
@@ -90,6 +92,7 @@ const EditItemScreen = ({ route, navigation }) => {
                                 keyboardType="numeric"
                                 placeholder="0.00"
                                 placeholderTextColor="#9CA3AF"
+                                selectionColor="#007bff"
                             />
                         </View>
                         <View style={styles.halfInput}>
@@ -101,6 +104,7 @@ const EditItemScreen = ({ route, navigation }) => {
                                 keyboardType="numeric"
                                 placeholder="0.00"
                                 placeholderTextColor="#9CA3AF"
+                                selectionColor="#007bff"
                             />
                         </View>
                     </View>
@@ -113,6 +117,7 @@ const EditItemScreen = ({ route, navigation }) => {
                         keyboardType="numeric"
                         placeholder="0"
                         placeholderTextColor="#9CA3AF"
+                        selectionColor="#007bff"
                     />
 
                     <Text style={styles.label}>Barcode</Text>
@@ -123,6 +128,7 @@ const EditItemScreen = ({ route, navigation }) => {
                             onChangeText={setBarcode}
                             placeholder="Scan or enter barcode"
                             placeholderTextColor="#9CA3AF"
+                            selectionColor="#007bff"
                         />
                         <TouchableOpacity style={styles.scanButton} onPress={() => setScannerVisible(true)}>
                             <MaterialIcons name="qr-code-scanner" size={24} color="#007bff" />

@@ -89,6 +89,7 @@ const SettingsScreen = () => {
                     <TextInput
                         style={[styles.input, !isEditing && styles.disabledInput]}
                         placeholder="e.g. My General Store"
+                        selectionColor="#007bff"
                         value={businessDetails.businessName}
                         onChangeText={(text) => handleChange('businessName', text)}
                         editable={isEditing}
@@ -98,6 +99,7 @@ const SettingsScreen = () => {
                     <TextInput
                         style={[styles.input, !isEditing && styles.disabledInput]}
                         placeholder="e.g. John Doe"
+                        selectionColor="#007bff"
                         value={businessDetails.ownerName}
                         onChangeText={(text) => handleChange('ownerName', text)}
                         editable={isEditing}
@@ -107,6 +109,7 @@ const SettingsScreen = () => {
                     <TextInput
                         style={[styles.input, !isEditing && styles.disabledInput]}
                         placeholder="e.g. +91 9876543210"
+                        selectionColor="#007bff"
                         keyboardType="phone-pad"
                         value={businessDetails.phone}
                         onChangeText={(text) => handleChange('phone', text)}
@@ -117,6 +120,7 @@ const SettingsScreen = () => {
                     <TextInput
                         style={[styles.input, !isEditing && styles.disabledInput]}
                         placeholder="e.g. business@example.com"
+                        selectionColor="#007bff"
                         keyboardType="email-address"
                         value={businessDetails.email}
                         onChangeText={(text) => handleChange('email', text)}
@@ -127,6 +131,7 @@ const SettingsScreen = () => {
                     <TextInput
                         style={[styles.input, !isEditing && styles.disabledInput]}
                         placeholder="e.g. business@upi"
+                        selectionColor="#007bff"
                         value={businessDetails.upiId}
                         onChangeText={(text) => handleChange('upiId', text)}
                         editable={isEditing}

@@ -71,6 +71,7 @@ const AddItemScreen = ({ navigation }) => {
                     style={styles.input}
                     placeholder="e.g., Wireless Mouse"
                     placeholderTextColor="#9CA3AF"
+                    selectionColor="#007bff"
                     value={formData.name}
                     onChangeText={text => handleChange('name', text)}
                 />
@@ -82,6 +83,7 @@ const AddItemScreen = ({ navigation }) => {
                             style={styles.input}
                             placeholder="0.00"
                             placeholderTextColor="#9CA3AF"
+                            selectionColor="#007bff"
                             keyboardType="numeric"
                             value={formData.sellingPrice}
                             onChangeText={text => handleChange('sellingPrice', text)}
@@ -93,6 +95,7 @@ const AddItemScreen = ({ navigation }) => {
                             style={styles.input}
                             placeholder="0.00"
                             placeholderTextColor="#9CA3AF"
+                            selectionColor="#007bff"
                             keyboardType="numeric"
                             value={formData.costPrice}
                             onChangeText={text => handleChange('costPrice', text)}
@@ -107,6 +110,7 @@ const AddItemScreen = ({ navigation }) => {
                             style={styles.input}
                             placeholder="0"
                             placeholderTextColor="#9CA3AF"
+                            selectionColor="#007bff"
                             keyboardType="numeric"
                             value={formData.stock}
                             onChangeText={text => handleChange('stock', text)}
@@ -118,6 +122,7 @@ const AddItemScreen = ({ navigation }) => {
                             style={styles.input}
                             placeholder="e.g., Electronics"
                             placeholderTextColor="#9CA3AF"
+                            selectionColor="#007bff"
                             value={formData.category}
                             onChangeText={text => handleChange('category', text)}
                         />
@@ -130,6 +135,7 @@ const AddItemScreen = ({ navigation }) => {
                         style={[styles.input, styles.barcodeInput]}
                         placeholder="Scan or type barcode"
                         placeholderTextColor="#9CA3AF"
+                        selectionColor="#007bff"
                         value={formData.barcode}
                         onChangeText={text => handleChange('barcode', text)}
                     />
