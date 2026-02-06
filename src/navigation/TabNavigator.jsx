@@ -12,19 +12,34 @@ const TabNavigator = () => {
     return (
         <Tab.Navigator screenOptions={{
             headerShown: false,
+            tabBarShowLabel: true,
             tabBarActiveTintColor: '#007bff',
+            tabBarInactiveTintColor: '#9CA3AF',
             tabBarStyle: {
+                backgroundColor: '#ffffff',
                 height: 65,
-                paddingTop: 5,
                 paddingBottom: 10,
+                paddingTop: 5,
+                borderTopWidth: 1,
+                borderTopColor: '#F3F4F6',
+                elevation: 8,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: -2 },
+                shadowOpacity: 0.05,
+                shadowRadius: 4,
+            },
+            tabBarLabelStyle: {
+                fontSize: 12,
+                fontWeight: '600',
+                marginBottom: 4,
             }
         }}>
             <Tab.Screen
                 name="Dashboard"
                 component={DashboardScreen}
                 options={{
-                    tabBarIcon: ({ color, size }) => (
-                        <MaterialIcons name="dashboard" color={color} size={size} />
+                    tabBarIcon: ({ color, focused }) => (
+                        <MaterialIcons name="dashboard" color={color} size={26} />
                     ),
                 }}
             />
@@ -32,9 +47,8 @@ const TabNavigator = () => {
                 name="Inventory"
                 component={InventoryScreen}
                 options={{
-                    tabBarLabel: 'Inventory',
-                    tabBarIcon: ({ color, size }) => (
-                        <MaterialIcons name="inventory" color={color} size={size} />
+                    tabBarIcon: ({ color, focused }) => (
+                        <MaterialIcons name="inventory" color={color} size={26} />
                     ),
                 }}
             />
@@ -42,9 +56,8 @@ const TabNavigator = () => {
                 name="Sales"
                 component={SalesScreen}
                 options={{
-                    tabBarLabel: 'Sales',
-                    tabBarIcon: ({ color, size }) => (
-                        <MaterialIcons name="point-of-sale" color={color} size={size} />
+                    tabBarIcon: ({ color, focused }) => (
+                        <MaterialIcons name="point-of-sale" color={color} size={26} />
                     ),
                 }}
             />
@@ -52,8 +65,8 @@ const TabNavigator = () => {
                 name="Settings"
                 component={SettingsScreen}
                 options={{
-                    tabBarIcon: ({ color, size }) => (
-                        <MaterialIcons name="settings" color={color} size={size} />
+                    tabBarIcon: ({ color, focused }) => (
+                        <MaterialIcons name="settings" color={color} size={26} />
                     ),
                 }}
             />
