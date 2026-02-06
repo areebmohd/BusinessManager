@@ -64,6 +64,7 @@ const LoginScreen = () => {
                 <TextInput
                     style={styles.input}
                     placeholder="Email Address"
+                    placeholderTextColor="#9CA3AF"
                     keyboardType="email-address"
                     autoCapitalize="none"
                     value={email}
@@ -72,6 +73,7 @@ const LoginScreen = () => {
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
+                    placeholderTextColor="#9CA3AF"
                     secureTextEntry
                     value={password}
                     onChangeText={setPassword}
@@ -80,7 +82,7 @@ const LoginScreen = () => {
                     <Text style={styles.buttonText}>{isRegistering ? 'Sign Up' : 'Login'}</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => setIsRegistering(!isRegistering)} style={{ marginTop: 15, alignItems: 'center' }}>
+                <TouchableOpacity onPress={() => setIsRegistering(!isRegistering)} style={{ alignItems: 'center' }}>
                     <Text style={styles.linkText}>
                         {isRegistering ? 'Already have an account? Login' : "Don't have an account? Sign Up"}
                     </Text>
@@ -106,82 +108,95 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        padding: 20,
-        backgroundColor: '#fff',
+        padding: 24,
+        backgroundColor: '#F5F7FA',
     },
     title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 10,
+        fontSize: 32,
+        fontWeight: '800',
+        marginBottom: 8,
         textAlign: 'center',
-        color: '#333',
+        color: '#111827',
+        letterSpacing: 0.5,
     },
     subtitle: {
         fontSize: 16,
-        color: '#666',
-        marginBottom: 30,
+        color: '#6B7280',
+        marginBottom: 40,
         textAlign: 'center',
+        fontWeight: '500',
     },
     form: {
         width: '100%',
     },
     input: {
         width: '100%',
-        height: 50,
+        height: 56,
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        paddingHorizontal: 15,
+        borderColor: '#E5E7EB',
+        borderRadius: 12,
+        paddingHorizontal: 16,
         fontSize: 16,
-        marginBottom: 15,
-        backgroundColor: '#f9f9f9',
+        marginBottom: 16,
+        backgroundColor: '#FFFFFF',
+        color: '#111827',
     },
     button: {
         width: '100%',
-        height: 50,
+        height: 56,
         backgroundColor: '#007bff',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 8,
+        borderRadius: 12,
+        marginTop: 8,
+        shadowColor: '#007bff',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
     },
     buttonText: {
         color: '#fff',
         fontSize: 18,
-        fontWeight: '600',
+        fontWeight: '700',
     },
     linkText: {
         color: '#007bff',
         fontSize: 14,
+        fontWeight: '600',
+        marginTop: 16,
     },
     dividerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 25,
+        marginVertical: 30,
     },
     divider: {
         flex: 1,
         height: 1,
-        backgroundColor: '#ddd',
+        backgroundColor: '#E5E7EB',
     },
     dividerText: {
         marginHorizontal: 10,
-        color: '#999',
+        color: '#9CA3AF',
+        fontWeight: '500',
     },
     googleButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        height: 50,
+        borderColor: '#E5E7EB',
+        borderRadius: 12,
+        height: 56,
         width: '100%',
+        elevation: 0,
     },
     googleButtonText: {
-        marginLeft: 10,
+        marginLeft: 12,
         fontSize: 16,
-        color: '#333',
+        color: '#111827',
         fontWeight: '600',
     },
 });
