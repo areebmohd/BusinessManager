@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { useAlert } from '../../context/AlertContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { saveSettings, subscribeToSettings } from '../../services/FirestoreService';
@@ -7,6 +8,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const SettingsScreen = () => {
     const { user, logout } = useAuth();
+    const { showAlert } = useAlert();
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [businessDetails, setBusinessDetails] = useState({
@@ -34,10 +36,10 @@ const SettingsScreen = () => {
             await saveSettings(user.uid, {
                 businessDetails: businessDetails
             });
-            Alert.alert('Success', 'Business details saved successfully');
+            showAlert('Success', 'Business details saved successfully', 'success');
             setIsEditing(false);
         } catch (error) {
-            Alert.alert('Error', 'Failed to save settings');
+            showAlert('Error', 'Failed to save settings', 'error');
         } finally {
             setLoading(false);
         }
@@ -56,9 +58,10 @@ const SettingsScreen = () => {
     };
 
     const handleLogout = () => {
-        Alert.alert(
+        showAlert(
             "Logout",
             "Are you sure you want to logout?",
+            "warning",
             [
                 { text: "Cancel", style: "cancel" },
                 { text: "Logout", onPress: logout, style: "destructive" }

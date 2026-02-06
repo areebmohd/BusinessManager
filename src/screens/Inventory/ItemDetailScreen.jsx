@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
+import { useAlert } from '../../context/AlertContext';
 import { deleteItem } from '../../services/FirestoreService';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ItemDetailScreen = ({ route, navigation }) => {
     const { user } = useAuth();
+    const { showAlert } = useAlert();
     const { item } = route.params;
     const [loading, setLoading] = useState(false);
 
     const handleDelete = () => {
-        Alert.alert(
+        showAlert(
             "Delete Item",
             `Are you sure you want to delete ${item.name}? This cannot be undone.`,
+            "warning",
             [
                 { text: "Cancel", style: "cancel" },
                 {
@@ -25,7 +28,7 @@ const ItemDetailScreen = ({ route, navigation }) => {
                             await deleteItem(user.uid, item.id);
                             navigation.goBack();
                         } catch (error) {
-                            Alert.alert("Error", "Failed to delete item.");
+                            showAlert("Error", "Failed to delete item.", "error");
                             setLoading(false);
                         }
                     }

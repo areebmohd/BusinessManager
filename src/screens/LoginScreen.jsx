@@ -1,10 +1,12 @@
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useAuth } from '../context/AuthContext';
+import { useAlert } from '../context/AlertContext';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const LoginScreen = () => {
+    const { showAlert } = useAlert();
     const [isRegistering, setIsRegistering] = useState(false);
 
     // Email Auth State
@@ -17,7 +19,7 @@ const LoginScreen = () => {
     // --- Email Auth Handlers ---
     const handleEmailAuth = async () => {
         if (!email || !password) {
-            Alert.alert('Error', 'Please fill all fields');
+            showAlert('Error', 'Please fill all fields', 'error');
             return;
         }
         setLoading(true);
@@ -28,7 +30,7 @@ const LoginScreen = () => {
                 await signInWithEmail(email, password);
             }
         } catch (error) {
-            Alert.alert('Authentication Error', error.message);
+            showAlert('Authentication Error', error.message, 'error');
         } finally {
             setLoading(false);
         }
@@ -40,7 +42,7 @@ const LoginScreen = () => {
         try {
             await signInWithGoogle();
         } catch (error) {
-            Alert.alert('Google Sign-In Error', error.message);
+            showAlert('Google Sign-In Error', error.message, 'error');
         } finally {
             setLoading(false);
         }

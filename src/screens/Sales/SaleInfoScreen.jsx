@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Modal } from 'react-native';
+import { useAlert } from '../../context/AlertContext';
 import { useAuth } from '../../context/AuthContext';
 import { addBulkSales, subscribeToSettings } from '../../services/FirestoreService';
 import { generateBillText } from '../../utils/BillUtils';
@@ -9,6 +10,7 @@ import QRCode from 'react-native-qrcode-svg';
 
 const SaleInfoScreen = ({ route, navigation }) => {
     const { user } = useAuth();
+    const { showAlert } = useAlert();
     const { cart, totalAmount } = route.params;
 
     const [buyerName, setBuyerName] = useState('');
@@ -75,11 +77,13 @@ const SaleInfoScreen = ({ route, navigation }) => {
 
             setLastSale(completedSale);
             setSaleCompleted(true);
-            Alert.alert("Success", "Sale recorded successfully!");
+            setLastSale(completedSale);
+            setSaleCompleted(true);
+            showAlert("Success", "Sale recorded successfully!", "success");
 
         } catch (error) {
             console.error(error);
-            Alert.alert("Error", "Failed to record sale.");
+            showAlert("Error", "Failed to record sale.", "error");
         } finally {
             setLoading(false);
             setShowQR(false); // Close QR if open
@@ -88,7 +92,7 @@ const SaleInfoScreen = ({ route, navigation }) => {
 
     const handleCompleteSaleCheck = async () => {
         if (!buyerName) {
-            Alert.alert("Required", "Please enter buyer name.");
+            showAlert("Required", "Please enter buyer name.", "warning");
             return;
         }
 
@@ -105,7 +109,7 @@ const SaleInfoScreen = ({ route, navigation }) => {
     const handleShareBill = () => {
         if (!lastSale) return;
         const billText = generateBillText(lastSale, businessInfo);
-        shareBillToWhatsApp(billText, lastSale.buyerNumber);
+        shareBillToWhatsApp(billText, lastSale.buyerNumber, showAlert);
     };
 
     if (saleCompleted) {

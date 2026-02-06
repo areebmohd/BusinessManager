@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useAlert } from '../../context/AlertContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { generateBillText } from '../../utils/BillUtils';
@@ -12,6 +13,7 @@ import { subscribeToSettings, updateSaleStatus } from '../../services/FirestoreS
 const SaleDetailScreen = ({ route, navigation }) => {
     const { sale } = route.params;
     const { user } = useAuth();
+    const { showAlert } = useAlert();
     const [businessInfo, setBusinessInfo] = useState({});
     const [billText, setBillText] = useState('');
 
@@ -32,16 +34,16 @@ const SaleDetailScreen = ({ route, navigation }) => {
     const handleUpdateStatus = async () => {
         try {
             await updateSaleStatus(user.uid, sale.id, 'paid');
-            Alert.alert("Success", "Payment status updated to paid!");
-            navigation.goBack(); // Easy way to refresh list and state is to go back, or we could update local state
+            showAlert("Success", "Payment status updated to paid!", "success");
+            navigation.goBack();
         } catch (error) {
-            Alert.alert("Error", "Failed to update payment status.");
+            showAlert("Error", "Failed to update payment status.", "error");
         }
     };
 
     const handleCopyBill = () => {
         Clipboard.setString(billText);
-        Alert.alert("Copied", "Bill text copied to clipboard!");
+        showAlert("Copied", "Bill text copied to clipboard!", "success");
     };
 
     const dateStr = sale.timestamp?.toDate ? sale.timestamp.toDate().toLocaleString() : 'Just now';

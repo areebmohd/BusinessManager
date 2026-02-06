@@ -1,10 +1,10 @@
 
 import { Linking, Alert, Platform } from 'react-native';
 
-export const shareBillToWhatsApp = async (billText, phoneNumber) => {
+export const shareBillToWhatsApp = async (billText, phoneNumber, showAlert) => {
     try {
         if (!phoneNumber) {
-            Alert.alert("No Number", "No WhatsApp number available for this buyer.");
+            if (showAlert) showAlert("No Number", "No WhatsApp number available for this buyer.", "warning");
             return;
         }
 
@@ -26,14 +26,16 @@ export const shareBillToWhatsApp = async (billText, phoneNumber) => {
             await Linking.openURL(url);
         } catch (err) {
             console.error("Failed to open WhatsApp URL:", err);
-            Alert.alert(
-                "Error",
-                "Could not open WhatsApp. Please ensure it is installed.",
-                [{ text: "OK" }]
-            );
+            if (showAlert) {
+                showAlert(
+                    "Error",
+                    "Could not open WhatsApp. Please ensure it is installed.",
+                    "error"
+                );
+            }
         }
     } catch (error) {
         console.error("Error sharing to WhatsApp:", error);
-        Alert.alert("Error", "Failed to open WhatsApp.");
+        if (showAlert) showAlert("Error", "Failed to open WhatsApp.", "error");
     }
 };

@@ -1,11 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Modal, Text, TouchableOpacity, Alert, PermissionsAndroid, Platform, Linking, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Modal, Text, TouchableOpacity, PermissionsAndroid, Platform, Linking, ActivityIndicator } from 'react-native';
 import { Camera, useCameraDevice, useCodeScanner } from 'react-native-vision-camera';
+import { useAlert } from '../context/AlertContext';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const BarcodeScannerModal = ({ visible, onClose, onScan }) => {
     const device = useCameraDevice('back');
+    const { showAlert } = useAlert();
     const [isActive, setIsActive] = useState(true);
     const [hasPermission, setHasPermission] = useState(false);
 
@@ -49,9 +51,10 @@ const BarcodeScannerModal = ({ visible, onClose, onScan }) => {
                 if (granted === PermissionsAndroid.RESULTS.GRANTED) {
                     setHasPermission(true);
                 } else {
-                    Alert.alert(
+                    showAlert(
                         "Permission Denied",
                         "Camera permission is required.",
+                        "error",
                         [
                             { text: "Cancel", style: "cancel", onPress: onClose },
                             { text: "Open Settings", onPress: () => Linking.openSettings() }

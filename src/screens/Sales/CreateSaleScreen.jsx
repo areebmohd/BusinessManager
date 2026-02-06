@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, FlatList, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { useAlert } from '../../context/AlertContext';
 import { useAuth } from '../../context/AuthContext';
 import { subscribeToItems, addBulkSales } from '../../services/FirestoreService';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -7,6 +8,7 @@ import BarcodeScannerModal from '../../components/BarcodeScannerModal';
 
 const CreateSaleScreen = ({ navigation }) => {
     const { user } = useAuth();
+    const { showAlert } = useAlert();
     const [items, setItems] = useState([]);
     const [cart, setCart] = useState([]);
     const [search, setSearch] = useState('');
@@ -46,7 +48,7 @@ const CreateSaleScreen = ({ navigation }) => {
 
     const handleQuantityChange = (item, change) => {
         if (item.stock <= 0 && change > 0) {
-            Alert.alert("Out of Stock", "This item is currently out of stock.");
+            showAlert("Out of Stock", "This item is currently out of stock.", "warning");
             return;
         }
 
@@ -56,7 +58,7 @@ const CreateSaleScreen = ({ navigation }) => {
             const newQty = currentQty + change;
 
             if (newQty > item.stock) {
-                Alert.alert("Limit Reached", `Only ${item.stock} units available.`);
+                showAlert("Limit Reached", `Only ${item.stock} units available.`, "warning");
                 return prevCart;
             }
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
+import { useAlert } from '../../context/AlertContext';
 import { updateItem } from '../../services/FirestoreService';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -8,6 +9,7 @@ import BarcodeScannerModal from '../../components/BarcodeScannerModal';
 
 const EditItemScreen = ({ route, navigation }) => {
     const { user } = useAuth();
+    const { showAlert } = useAlert();
     const { item } = route.params;
 
     const [loading, setLoading] = useState(false);
@@ -21,7 +23,7 @@ const EditItemScreen = ({ route, navigation }) => {
 
     const handleUpdate = async () => {
         if (!name || !sellingPrice || !stock) {
-            Alert.alert('Error', 'Please fill all required fields');
+            showAlert('Error', 'Please fill all required fields', 'error');
             return;
         }
 
@@ -35,11 +37,11 @@ const EditItemScreen = ({ route, navigation }) => {
                 stock: parseInt(stock),
                 barcode: barcode
             });
-            Alert.alert('Success', 'Item updated successfully', [
-                { text: 'OK', onPress: () => navigation.navigate('Main', { screen: 'Inventory' }) } // Go back to list, details will update via subscription
+            showAlert('Success', 'Item updated successfully', 'success', [
+                { text: 'OK', onPress: () => navigation.navigate('Main', { screen: 'Inventory' }) }
             ]);
         } catch (error) {
-            Alert.alert('Error', 'Failed to update item');
+            showAlert('Error', 'Failed to update item', 'error');
         } finally {
             setLoading(false);
         }

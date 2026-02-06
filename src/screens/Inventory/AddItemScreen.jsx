@@ -3,11 +3,13 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { addItem } from '../../services/FirestoreService';
 import { useAuth } from '../../context/AuthContext';
+import { useAlert } from '../../context/AlertContext';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import BarcodeScannerModal from '../../components/BarcodeScannerModal';
 
 const AddItemScreen = ({ navigation }) => {
     const { user } = useAuth();
+    const { showAlert } = useAlert();
     const [loading, setLoading] = useState(false);
     const [scannerVisible, setScannerVisible] = useState(false);
     const [formData, setFormData] = useState({
@@ -25,7 +27,7 @@ const AddItemScreen = ({ navigation }) => {
 
     const handleSave = async () => {
         if (!formData.name || !formData.sellingPrice || !formData.stock) {
-            Alert.alert('Validation Error', 'Name, Price, and Stock are required.');
+            showAlert('Validation Error', 'Name, Price, and Stock are required.', 'error');
             return;
         }
 
@@ -40,11 +42,11 @@ const AddItemScreen = ({ navigation }) => {
                 category: formData.category,
                 barcode: formData.barcode
             });
-            Alert.alert('Success', 'Item added successfully', [
+            showAlert('Success', 'Item added successfully', 'success', [
                 { text: 'OK', onPress: () => navigation.goBack() }
             ]);
         } catch (error) {
-            Alert.alert('Error', 'Failed to save item. Please try again.');
+            showAlert('Error', 'Failed to save item. Please try again.', 'error');
         } finally {
             setLoading(false);
         }
