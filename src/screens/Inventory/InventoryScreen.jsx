@@ -126,7 +126,7 @@ const InventoryScreen = ({ navigation }) => {
                     </TouchableOpacity>
                 )}
                 <TouchableOpacity onPress={() => setScannerVisible(true)} style={styles.scanButton}>
-                    <MaterialIcons name="qr-code-scanner" size={22} color="#007bff" />
+                    <MaterialIcons name="qr-code-scanner" size={24} color="#007bff" />
                 </TouchableOpacity>
             </View>
 
@@ -230,10 +230,7 @@ const styles = StyleSheet.create({
         paddingVertical: 0,
     },
     scanButton: {
-        padding: 8,
-        backgroundColor: '#E3F2FD',
-        borderRadius: 8,
-        marginLeft: 8,
+        marginLeft: 10,
     },
     categoriesContainer: {
         marginBottom: 10,
