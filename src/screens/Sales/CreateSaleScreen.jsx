@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
         paddingVertical: 0,
     },
 
-    listContent: { paddingHorizontal: 20, paddingBottom: 100, paddingTop: 10 }, // Increased bottom padding for footer
+    listContent: { paddingHorizontal: 20, paddingBottom: 180, paddingTop: 10 }, // Increased bottom padding for footer
     itemCard: {
         flexDirection: 'row',
         justifyContent: 'space-between',

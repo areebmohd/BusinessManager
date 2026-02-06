@@ -456,7 +456,7 @@ const DashboardScreen = ({ navigation }) => {
                             <View style={[styles.iconContainer, { backgroundColor: '#FFEBEE', width: 40, height: 40 }]}>
                                 <MaterialIcons name="assignment-late" size={20} color="#C62828" />
                             </View>
-                            <Text style={[styles.cardLabel, { marginLeft: 12, marginBottom: 0 }]}>Total Outstanding (Due)</Text>
+                            <Text style={[styles.cardLabel, { marginLeft: 12, marginBottom: 0 }]}>Total Pending</Text>
                         </View>
                         <Text style={[styles.cardValue, { fontSize: 20, color: '#C62828' }]}>₹{metrics.totalPending.toLocaleString()}</Text>
                     </View>
@@ -472,7 +472,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F5F7FA',
-        padding: 16,
+        padding: 20,
+        paddingTop: 10
     },
     center: {
         flex: 1,
@@ -484,8 +485,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
-        marginTop: 8
     },
     header: {
         fontSize: 28,
@@ -497,7 +496,6 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#6B7280',
         fontWeight: '500',
-        marginTop: 4
     },
     dateBadge: {
         backgroundColor: '#E3F2FD',
@@ -515,7 +513,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#374151',
         marginBottom: 12,
-        marginTop: 24,
+        marginTop: 23,
         marginLeft: 4
     },
     statsGrid: {

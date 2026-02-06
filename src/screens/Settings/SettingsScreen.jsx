@@ -76,14 +76,15 @@ const SettingsScreen = () => {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F7FA' }}>
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
-                <Text style={styles.header}>Settings</Text>
-
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>Business Details</Text>
+            <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+                <View style={styles.headerContainer}>
+                    <View>
+                        <Text style={styles.header}>Settings</Text>
+                        <Text style={styles.subHeader}>Account Information</Text>
                     </View>
-
+                </View>
+                <Text style={styles.sectionTitle}>Business Details</Text>
+                <View style={styles.section}>
                     <Text style={styles.label}>Business Name</Text>
                     <TextInput
                         style={[styles.input, !isEditing && styles.disabledInput]}
@@ -139,9 +140,14 @@ const SettingsScreen = () => {
                     </TouchableOpacity>
                 </View>
 
+                <Text style={styles.sectionTitle}>Account</Text>
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Account</Text>
-                    <Text style={styles.infoText}>{user?.email || 'User'}</Text>
+                    <View style={styles.accountInfoRow}>
+                        <View style={styles.iconContainer}>
+                            <MaterialIcons name="person" size={20} color="#007bff" />
+                        </View>
+                        <Text style={styles.infoText}>{user?.email || 'User'}</Text>
+                    </View>
 
                     <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                         <MaterialIcons name="logout" size={20} color="#fff" />
@@ -155,32 +161,49 @@ const SettingsScreen = () => {
 
 const styles = StyleSheet.create({
     scrollContainer: { flexGrow: 1, padding: 20, paddingTop: 10, paddingBottom: 0 },
-    container: { flex: 1, backgroundColor: '#F5F7FA', padding: 20, paddingTop: 10 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    header: { fontSize: 28, fontWeight: '800', marginBottom: 10, color: '#111827', letterSpacing: 0.5 },
+    headerContainer: {
+        marginBottom: 20,
+    },
+    header: {
+        fontSize: 28,
+        fontWeight: '800',
+        color: '#111827',
+        letterSpacing: 0.5
+    },
+    subHeader: {
+        fontSize: 15,
+        color: '#6B7280',
+        fontWeight: '500',
+    },
     section: {
         backgroundColor: '#FFFFFF',
         borderRadius: 16,
         padding: 20,
-        marginBottom: 15,
+        paddingTop: 15,
+        marginBottom: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 10,
         elevation: 3
     },
-    // Removed accountSection style to remove forced gap
-    sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-    sectionTitle: { fontSize: 21, fontWeight: '700', color: '#111827' },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#374151',
+        marginBottom: 10,
+        marginLeft: 4
+    },
     editLink: { color: '#007bff', fontSize: 14, fontWeight: '600' },
     label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6 },
     input: {
         borderWidth: 1,
         borderColor: '#E5E7EB',
         borderRadius: 12,
-        padding: 12, // Comfortable padding
+        padding: 12,
         fontSize: 14,
-        marginBottom: 14, // Increased spacing between inputs
+        marginBottom: 14,
         backgroundColor: '#FFFFFF',
         color: '#111827'
     },
@@ -201,7 +224,30 @@ const styles = StyleSheet.create({
         shadowColor: '#007bff'
     },
     saveText: { color: '#fff', fontSize: 15, fontWeight: '700' },
-    infoText: { fontSize: 14, color: '#374151', marginBottom: 16, fontWeight: '500' },
+
+    // Account Section Styles
+    accountInfoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+        backgroundColor: '#ebf3feff',
+        padding: 12,
+        borderRadius: 12
+    },
+    iconContainer: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: '#ffffffff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12
+    },
+    infoText: {
+        fontSize: 15,
+        color: '#111827',
+        fontWeight: '600'
+    },
     logoutButton: {
         flexDirection: 'row',
         backgroundColor: '#FF3B30',

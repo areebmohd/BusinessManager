@@ -107,7 +107,6 @@ const InventoryScreen = ({ navigation }) => {
             <View style={styles.headerContainer}>
                 <View>
                     <Text style={styles.header}>Inventory</Text>
-                    <Text style={styles.subHeader}>Manage your products</Text>
                 </View>
             </View>
 
@@ -202,19 +201,13 @@ const styles = StyleSheet.create({
     headerContainer: {
         paddingHorizontal: 20,
         paddingTop: 10,
-        paddingBottom: 20,
+        paddingBottom: 10,
     },
     header: {
         fontSize: 28,
         fontWeight: '800',
         color: '#111827',
         letterSpacing: 0.5,
-    },
-    subHeader: {
-        fontSize: 15,
-        color: '#6B7280',
-        fontWeight: '500',
-        marginTop: 4,
     },
     searchContainer: {
         flexDirection: 'row',

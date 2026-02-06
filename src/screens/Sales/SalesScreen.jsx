@@ -245,7 +245,7 @@ const SalesScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F5F7FA' }, // Updated background
-    header: { fontSize: 28, fontWeight: '800', marginBottom: 20, color: '#111827', paddingHorizontal: 20, paddingTop: 10, letterSpacing: 0.5 }, // Updated header
+    header: { fontSize: 28, fontWeight: '800', marginBottom: 10, color: '#111827', paddingHorizontal: 20, paddingTop: 10, letterSpacing: 0.5 }, // Updated header
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',

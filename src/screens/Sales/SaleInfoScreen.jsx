@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     },
     completeButtonText: { color: '#fff', fontSize: 18, fontWeight: '700' },
 
-    successContainer: { alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: 50 },
+    successContainer: { alignItems: 'center', justifyContent: 'center', flex: 1, },
     successText: { fontSize: 28, fontWeight: '800', color: '#111827', marginTop: 20, marginBottom: 40 },
 
     shareButton: {

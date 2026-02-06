@@ -88,7 +88,9 @@ const ItemDetailScreen = ({ route, navigation }) => {
                         </View>
                     ) : null}
 
-                    <View style={styles.divider} />
+                    {item.barcode ? (
+                        <View style={styles.divider} />
+                    ) : null}
 
                     <View style={styles.detailRow}>
                         <Text style={styles.label}>Added On</Text>
@@ -225,7 +227,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#007bff',
     },
     deleteButton: {
-        backgroundColor: '#EF4444',
+        backgroundColor: '#FF3B30',
     },
     buttonText: {
         color: '#fff',
