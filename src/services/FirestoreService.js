@@ -93,16 +93,16 @@ export const addSale = async (uid, saleData) => {
 
 export const addBulkSales = async (uid, cartItems, paymentMethod) => {
     const db = firestore();
-    const batch = db.batch();
     const userRef = getUserDoc(uid);
 
-    // 1. Create ONE Sale Document for the entire transaction
-    const saleRef = userRef.collection('sales').doc();
+    // References
+    const counterRef = userRef.collection('counters').doc('sales');
+    const saleRef = userRef.collection('sales').doc(); // Auto-ID for the document itself
 
     // Calculate total amount
     const totalAmount = cartItems.reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0);
 
-    // Prepare items array for the document
+    // Prepare items array
     const saleItems = cartItems.map(item => ({
         itemId: item.id,
         itemName: item.name,
@@ -125,28 +125,53 @@ export const addBulkSales = async (uid, cartItems, paymentMethod) => {
         paymentStatus = paymentMethod || 'paid';
     }
 
-    batch.set(saleRef, {
-        items: saleItems,
-        totalAmount: totalAmount,
-        paymentMethod: paymentStatus, // 'paid', 'unpaid', 'upi'
-        buyerRef: '', // Future use
-        ...extraMetadata, // Spread buyer info (name, number)
-        timestamp: firestore.FieldValue.serverTimestamp(),
-    });
-
-    // 2. Decrement Stock for EACH item
-    cartItems.forEach(item => {
-        const itemRef = userRef.collection('items').doc(item.id);
-        batch.update(itemRef, {
-            stock: firestore.FieldValue.increment(-item.quantity)
-        });
-    });
-
     try {
-        await batch.commit();
-        return saleRef.id; // Return ID for UI use
+        const result = await db.runTransaction(async (transaction) => {
+            // 1. Get current counter
+            const counterDoc = await transaction.get(counterRef);
+            let nextId = 1001;
+            
+            if (counterDoc.exists) {
+                const data = counterDoc.data();
+                if (data && typeof data.count === 'number') {
+                    nextId = data.count + 1;
+                }
+            }
+
+            const billId = `BILL-${nextId}`;
+
+            // 2. Set the sale document
+            transaction.set(saleRef, {
+                bill_Id: billId,
+                items: saleItems,
+                totalAmount: totalAmount,
+                paymentMethod: paymentStatus, // 'paid', 'unpaid', 'upi'
+                buyerRef: '', // Future use
+                ...extraMetadata, // Spread buyer info (name, number)
+                timestamp: firestore.FieldValue.serverTimestamp(),
+            });
+
+            // 3. Update the counter
+            transaction.set(counterRef, { count: nextId }, { merge: true });
+
+            // 4. Update Stock for EACH item
+            // Note: Standard firestore transactions require reads before writes if we want to read the current stock,
+            // but since we are just incrementing, we can use FieldValue.increment without reading the item first in the transaction context strictly for stock value.
+            // However, a transaction object also supports update() directly.
+            cartItems.forEach(item => {
+                const itemRef = userRef.collection('items').doc(item.id);
+                transaction.update(itemRef, {
+                    stock: firestore.FieldValue.increment(-item.quantity)
+                });
+            });
+
+            return billId;
+        });
+
+        return result; // Return the custom Bill ID (e.g., BILL-1001)
+
     } catch (error) {
-        console.error("Error processing bulk sales: ", error);
+        console.error("Error processing bulk sales with transaction: ", error);
         throw error;
     }
 };

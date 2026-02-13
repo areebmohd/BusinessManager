@@ -58,7 +58,7 @@ export const generateBillText = (sale, businessInfo = {}) => {
 
     // Buyer Info
     const buyerName = sale.buyerName || 'Buyer Name';
-    const buyerNumber = sale.buyerNumber || 'Buyer Number: N/A';
+    const buyerNumber = sale.buyerNumber || 'N/A';
 
     // Build the text
     // Use monospace block for WhatsApp
