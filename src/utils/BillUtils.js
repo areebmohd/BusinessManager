@@ -61,30 +61,43 @@ export const generateBillText = (sale, businessInfo = {}) => {
     const buyerNumber = sale.buyerNumber || 'Buyer Number: N/A';
 
     // Build the text
-    let billText = `${businessName}\n`;
+    // Use monospace block for WhatsApp
+    let billText = '```\n'; 
+    billText += `${businessName}\n`;
     billText += `${contactNumber}\n`;
-    billText += `------------------------\n\n`;
+    billText += `------------------------------\n\n`;
     billText += `Bill_Id: ${bill_Id}\n`;
-    billText += `Date: ${dateStr}\n`;
-    billText += `Time: ${timeStr}\n`;
-    billText += `------------------------\n\n`;
-    billText += `${buyerName}\n`;
-    billText += `${buyerNumber}\n`;
-    billText += `------------------------\n\n`;
+    billText += `Date: ${dateStr}  Time: ${timeStr}\n`;
+    billText += `------------------------------\n\n`;
+    billText += `Buyer: ${buyerName}\n`;
+    billText += `Mobile: ${buyerNumber}\n`;
+    billText += `------------------------------\n\n`;
+    
+    // Configurable column widths
+    const itemWidth = 10;
+    const qtyWidth = 4;
+    const priceWidth = 6;
+    const totalWidth = 7;
+
+    // Header
+    // Use padEnd for Item to left align.
+    // Use padStart for others to right align.
+    // Add explicit spaces for separation.
+    billText += `${"Item".padEnd(itemWidth)} ${"Qty".padStart(qtyWidth)} ${"Price".padStart(priceWidth)} ${"Total".padStart(totalWidth)}\n`;
+    billText += `------------------------------\n`;
 
     // Items
     saleItems.forEach(item => {
-        // Format: Rice    2 x 50  = 100
-        const name = (item.itemName || item.name || 'Item').padEnd(15).substring(0, 15);
-        const qty = String(item.quantity || item.qty || 0);
-        const price = String(item.unitPrice || item.price || 0);
-        const itemTotal = String(item.total || ((item.quantity || 0) * (item.unitPrice || 0)));
+        const name = (item.itemName || item.name || 'Item').substring(0, itemWidth).padEnd(itemWidth);
+        const qty = String(item.quantity || item.qty || 0).padStart(qtyWidth);
+        const price = String(item.unitPrice || item.price || 0).padStart(priceWidth);
+        const itemTotal = String(item.total || ((item.quantity || 0) * (item.unitPrice || 0))).padStart(totalWidth);
 
-        billText += `${name} ${qty} x ${price} = ${itemTotal}\n`;
+        billText += `${name} ${qty} ${price} ${itemTotal}\n`;
     });
 
-    billText += `------------------------\n`;
-    billText += `TOTAL: ₹${finalTotal}\n\n`;
+    billText += `------------------------------\n`;
+    billText += `${"Grand Total:".padEnd(25)} ₹${finalTotal}\n\n`;
 
     // Payment info and status
     let methodDisplay = 'Cash';
@@ -110,9 +123,9 @@ export const generateBillText = (sale, businessInfo = {}) => {
 
     billText += `Payment: ${methodDisplay}\n`;
     billText += `Status: ${statusDisplay}\n`;
-    billText += `------------------------\n\n`;
-
-    billText += `Thank you for shopping.`;
+    billText += `------------------------------\n\n`;
+    billText += `Thank you for shopping.\n`;
+    billText += '```'; // End monospace block
 
     return billText;
 };
