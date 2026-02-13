@@ -75,6 +75,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const sendPasswordResetEmail = async email => {
+    try {
+      console.log('Checking sign-in methods for:', email);
+      const signInMethods = await auth().fetchSignInMethodsForEmail(email);
+
+      if (signInMethods.length === 0) {
+        throw new Error('No account found with this email.');
+      }
+
+      if (signInMethods.includes('google.com')) {
+        throw new Error(
+          'This email uses Google Sign-In. Please sign in with Google.',
+        );
+      }
+
+      console.log('Attempting to send password reset email to:', email);
+      await auth().sendPasswordResetEmail(email);
+      console.log('Password reset email sent successfully.');
+    } catch (error) {
+      console.error('Error sending password reset email: ', error);
+      throw error;
+    }
+  };
+
   const signInWithGoogle = async () => {
     try {
       // Check for Play Services
@@ -130,6 +154,7 @@ export const AuthProvider = ({ children }) => {
       logout,
       sendVerificationEmail,
       checkVerification,
+      sendPasswordResetEmail,
     }),
     [user, initializing],
   );
