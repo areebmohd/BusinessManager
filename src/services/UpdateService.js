@@ -4,7 +4,7 @@ import ReactNativeBlobUtil from 'react-native-blob-util';
 
 // NOTE: User needs to replace this with their actual raw GitHub URL after they upload version.json
 const VERSION_JSON_URL =
-  'https://raw.githubusercontent.com/areebmohd/BusinessManager/main/version.json';
+  'https://raw.githubusercontent.com/areebmohd/BusinessManager/refs/heads/main/version.json';
 
 const checkUpdate = async (manual = false) => {
   try {
