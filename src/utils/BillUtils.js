@@ -22,17 +22,27 @@ export const generateBillText = (sale, businessInfo = {}) => {
 
     const finalTotal = totalAmount || total || 0;
 
+    // Helper to break auto-linking in WhatsApp by inserting Zero-Width Space
+    const breakLinks = (str) => {
+        return String(str)
+            .replace(/(\d)/g, '$1\u200B')
+            .replace(/-/g, '-\u200B')
+            .replace(/\//g, '/\u200B') // Add handling for slashes
+            .replace(/:/g, ':\u200B')
+            .replace(/\./g, '.\u200B');
+    };
+
     // Format Date
     let dateStr = 'N/A';
     let timeStr = 'N/A';
 
     if (timestamp && timestamp.toDate) {
         const dateObj = timestamp.toDate();
-        // DD-MM-YYYY
+        // DD/MM/YYYY
         const day = String(dateObj.getDate()).padStart(2, '0');
         const month = String(dateObj.getMonth() + 1).padStart(2, '0');
         const year = dateObj.getFullYear();
-        dateStr = `${day}-${month}-${year}`;
+        dateStr = `${day}/${month}/${year}`;
 
         // HH:MM
         const hours = String(dateObj.getHours()).padStart(2, '0');
@@ -43,7 +53,7 @@ export const generateBillText = (sale, businessInfo = {}) => {
         const day = String(now.getDate()).padStart(2, '0');
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const year = now.getFullYear();
-        dateStr = `${day}-${month}-${year}`;
+        dateStr = `${day}/${month}/${year}`;
 
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -67,7 +77,7 @@ export const generateBillText = (sale, businessInfo = {}) => {
     billText += `${contactNumber}\n`;
     billText += `------------------------------\n\n`;
     billText += `Bill_Id: ${bill_Id}\n`;
-    billText += `Date: ${dateStr}  Time: ${timeStr}\n`;
+    billText += `Date: ${breakLinks(dateStr)}  Time: ${breakLinks(timeStr)}\n`;
     billText += `------------------------------\n\n`;
     billText += `Buyer: ${buyerName}\n`;
     billText += `Mobile: ${buyerNumber}\n`;
@@ -89,15 +99,15 @@ export const generateBillText = (sale, businessInfo = {}) => {
     // Items
     saleItems.forEach(item => {
         const name = (item.itemName || item.name || 'Item').substring(0, itemWidth).padEnd(itemWidth);
-        const qty = String(item.quantity || item.qty || 0).padStart(qtyWidth);
-        const price = String(item.unitPrice || item.price || 0).padStart(priceWidth);
-        const itemTotal = String(item.total || ((item.quantity || 0) * (item.unitPrice || 0))).padStart(totalWidth);
+        const qty = breakLinks(String(item.quantity || item.qty || 0).padStart(qtyWidth));
+        const price = breakLinks(String(item.unitPrice || item.price || 0).padStart(priceWidth));
+        const itemTotal = breakLinks(String(item.total || ((item.quantity || 0) * (item.unitPrice || 0))).padStart(totalWidth));
 
         billText += `${name} ${qty} ${price} ${itemTotal}\n`;
     });
 
     billText += `------------------------------\n`;
-    billText += `${"Grand Total:".padEnd(25)} ₹${finalTotal}\n\n`;
+    billText += `${"Grand Total:".padEnd(23)} ₹${breakLinks(finalTotal)}\n\n`;
 
     // Payment info and status
     let methodDisplay = 'Cash';

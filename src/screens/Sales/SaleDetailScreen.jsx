@@ -185,10 +185,6 @@ const SaleDetailScreen = ({ route, navigation }) => {
       </View>
 
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.actionButton}>
-          <MaterialIcons name="print" size={24} color="#555" />
-          <Text style={styles.actionText}>Print Receipt</Text>
-        </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton} onPress={handleShareBill}>
           <MaterialIcons name="share" size={24} color="#555" />
           <Text style={styles.actionText}>Share</Text>

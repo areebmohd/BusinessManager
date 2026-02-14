@@ -9,15 +9,17 @@ import CreateSaleScreen from '../screens/Sales/CreateSaleScreen';
 import SaleDetailScreen from '../screens/Sales/SaleDetailScreen';
 import SaleInfoScreen from '../screens/Sales/SaleInfoScreen';
 import EditItemScreen from '../screens/Inventory/EditItemScreen';
+import PremiumScreen from '../screens/Subscription/PremiumScreen';
 import { useAuth } from '../context/AuthContext';
 import { View, ActivityIndicator } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
-  const { user, initializing } = useAuth();
+  const { user, initializing, subscriptionStatus } = useAuth();
 
-  if (initializing) {
+  if (initializing || subscriptionStatus === 'loading') {
+    // Wait for subscription check too
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -36,8 +38,11 @@ const AppNavigator = () => {
           name="EmailVerification"
           component={EmailVerificationScreen}
         />
+      ) : subscriptionStatus === 'expired' ? (
+        // Subscription Expired -> Premium Paywall
+        <Stack.Screen name="Premium" component={PremiumScreen} />
       ) : (
-        // User exists AND verified -> Main App
+        // User exists AND verified AND Active -> Main App
         <>
           <Stack.Screen name="Main" component={TabNavigator} />
           {/* Inner Screens pushed ON TOP of Tabs (hiding tab bar) */}
@@ -70,6 +75,17 @@ const AppNavigator = () => {
             name="SaleInfo"
             component={SaleInfoScreen}
             options={{ headerShown: true, title: 'Sale Information' }}
+          />
+          {/* Allow access to Premium Screen from settings even if active */}
+          <Stack.Screen
+            name="Premium"
+            component={PremiumScreen}
+            options={{
+              headerShown: true,
+              title: 'Premium Subscription',
+              headerStyle: { backgroundColor: '#111827' },
+              headerTintColor: '#fff',
+            }}
           />
         </>
       )}

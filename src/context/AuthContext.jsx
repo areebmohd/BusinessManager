@@ -2,15 +2,37 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
+import { startTrial } from '../services/SubscriptionService';
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [initializing, setInitializing] = useState(true);
+  const [subscriptionStatus, setSubscriptionStatus] = useState('loading');
 
   // Handle user state changes
-  function onAuthStateChanged(user) {
+  async function onAuthStateChanged(user) {
     setUser(user);
+
+    if (user) {
+      try {
+        // Dynamic import to avoid circular dependency if possible, though strict requirement
+        const {
+          checkSubscriptionStatus,
+        } = require('../services/SubscriptionService');
+        const status = await checkSubscriptionStatus(user.uid);
+        setSubscriptionStatus(
+          status.status === 'expired' ? 'expired' : 'active',
+        );
+      } catch (e) {
+        console.error('Subscription check failed', e);
+        setSubscriptionStatus('active');
+      }
+    } else {
+      setSubscriptionStatus('active');
+    }
+
     if (initializing) setInitializing(false);
   }
 
@@ -41,6 +63,12 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
       );
+
+      // Initialize Subscription (7-Day Trial)
+      if (userCredential.user) {
+        await startTrial(userCredential.user.uid);
+      }
+
       // Send verification email immediately after signup
       if (userCredential.user && !userCredential.user.emailVerified) {
         await userCredential.user.sendEmailVerification();
@@ -148,6 +176,8 @@ export const AuthProvider = ({ children }) => {
     () => ({
       user,
       initializing,
+      subscriptionStatus,
+      setSubscriptionStatus,
       signInWithEmail,
       signUpWithEmail,
       signInWithGoogle,
@@ -156,7 +186,7 @@ export const AuthProvider = ({ children }) => {
       checkVerification,
       sendPasswordResetEmail,
     }),
-    [user, initializing],
+    [user, initializing, subscriptionStatus],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
