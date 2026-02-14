@@ -5,6 +5,7 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { AuthProvider } from './src/context/AuthContext';
 
 import { AlertProvider } from './src/context/AlertContext';
+import AppUpdateChecker from './src/components/AppUpdateChecker';
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
       <AlertProvider>
         <NavigationContainer>
           <AppNavigator />
+          <AppUpdateChecker />
         </NavigationContainer>
       </AlertProvider>
     </AuthProvider>

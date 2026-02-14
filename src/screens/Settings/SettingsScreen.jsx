@@ -19,6 +19,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { checkSubscriptionStatus } from '../../services/SubscriptionService';
 import UpdateService from '../../services/UpdateService';
 import DeviceInfo from 'react-native-device-info';
+import UpdateModal from '../../components/UpdateModal';
 
 const SettingsScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
@@ -35,6 +36,10 @@ const SettingsScreen = ({ navigation }) => {
     email: '',
     upiId: '',
   });
+
+  // Update Modal State
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [updateData, setUpdateData] = useState(null);
 
   useEffect(() => {
     if (!user) return;
@@ -133,7 +138,24 @@ const SettingsScreen = ({ navigation }) => {
 
           <TouchableOpacity
             style={styles.updateButton}
-            onPress={() => UpdateService.checkUpdate(true)}
+            onPress={async () => {
+              setLoading(true);
+              const result = await UpdateService.checkUpdate();
+              setLoading(false);
+
+              if (result.updateAvailable) {
+                setUpdateData(result.data);
+                setUpdateModalVisible(true);
+              } else if (result.error) {
+                showAlert('Error', 'Failed to check for updates', 'error');
+              } else {
+                showAlert(
+                  'Up to Date',
+                  'You are using the latest version.',
+                  'success',
+                );
+              }
+            }}
           >
             <Text style={styles.updateButtonText}>Check for Updates</Text>
           </TouchableOpacity>
@@ -263,7 +285,9 @@ const SettingsScreen = ({ navigation }) => {
 
           <TouchableOpacity
             style={styles.upgradeButton}
-            onPress={() => navigation.navigate('Premium')}
+            onPress={() =>
+              navigation.navigate('Premium', { fromSettings: true })
+            }
           >
             <Text style={styles.upgradeButtonText}>
               {subscriptionStatus === 'active'
@@ -287,6 +311,19 @@ const SettingsScreen = ({ navigation }) => {
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Update Modal */}
+        <UpdateModal
+          visible={updateModalVisible}
+          updateData={updateData}
+          onUpdate={() => {
+            setUpdateModalVisible(false);
+            if (updateData?.downloadUrl) {
+              UpdateService.downloadAndInstall(updateData.downloadUrl);
+            }
+          }}
+          onCancel={() => setUpdateModalVisible(false)}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -367,7 +404,7 @@ const styles = StyleSheet.create({
   accountInfoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
     backgroundColor: '#ebf3feff',
     padding: 12,
     borderRadius: 12,

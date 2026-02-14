@@ -47,9 +47,13 @@ export const checkSubscriptionStatus = async (uid) => {
         if (!userDoc.exists) return { status: 'expired', daysLeft: 0 };
 
         const data = userDoc.data();
-        const sub = data.subscription;
+        
+        // Safety check to ensure data and subscription exist
+        if (!data || !data.subscription) {
+             return { status: 'expired', daysLeft: 0 };
+        }
 
-        if (!sub) return { status: 'expired', daysLeft: 0 };
+        const sub = data.subscription;
 
         const now = new Date();
         const expiryDate = sub.expiryDate.toDate();
@@ -90,12 +94,14 @@ export const upgradeSubscription = async (uid, planType) => {
             expiryDate.setDate(now.getDate() + 360);
         }
 
-        await usersCollection.doc(uid).update({
-            'subscription.status': 'premium',
-            'subscription.planType': planType,
-            'subscription.startDate': firestore.Timestamp.fromDate(now),
-            'subscription.expiryDate': firestore.Timestamp.fromDate(expiryDate),
-        });
+        await usersCollection.doc(uid).set({
+            subscription: {
+                status: 'premium',
+                planType: planType,
+                startDate: firestore.Timestamp.fromDate(now),
+                expiryDate: firestore.Timestamp.fromDate(expiryDate),
+            }
+        }, { merge: true });
 
     } catch (error) {
         console.error("Error upgrading subscription:", error);

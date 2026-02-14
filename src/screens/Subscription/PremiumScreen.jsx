@@ -20,8 +20,8 @@ import {
   getPricing,
 } from '../../services/PaymentService';
 
-const PremiumScreen = ({ navigation }) => {
-  const { user, setSubscriptionStatus } = useAuth();
+const PremiumScreen = ({ navigation, route }) => {
+  const { user, setSubscriptionStatus, subscriptionStatus, logout } = useAuth();
   const { showAlert } = useAlert();
   const [loading, setLoading] = useState(false);
   const [expiryDate, setExpiryDate] = useState(null);
@@ -109,13 +109,44 @@ const PremiumScreen = ({ navigation }) => {
           <Text style={styles.subtitle}>
             Unlock unlimited access to BizManager
           </Text>
+          {user?.email && (
+            <View style={styles.userContainer}>
+              <Text style={styles.userText}>{user.email}</Text>
+            </View>
+          )}
         </View>
 
-        <View style={styles.statusContainer}>
-          <Text style={styles.statusText}>
-            Your free trial has ended. Please subscribe to continue managing
-            your business efficiently.
-          </Text>
+        <View
+          style={[
+            styles.statusContainer,
+            subscriptionStatus === 'active'
+              ? styles.activeStatusContainer
+              : styles.expiredStatusContainer,
+          ]}
+        >
+          {subscriptionStatus === 'active' ? (
+            <View>
+              <Text style={[styles.statusText, styles.activeStatusText]}>
+                Your premium plan is active.
+              </Text>
+              {expiryDate && (
+                <Text style={styles.validityText}>
+                  Valid till{' '}
+                  {expiryDate.toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </Text>
+              )}
+              <Text style={styles.renewText}>You can extend it now.</Text>
+            </View>
+          ) : (
+            <Text style={styles.statusText}>
+              Your free trial has ended. Please subscribe to continue managing
+              your business efficiently.
+            </Text>
+          )}
         </View>
 
         <Text style={styles.sectionTitle}>Choose a Plan</Text>
@@ -156,11 +187,41 @@ const PremiumScreen = ({ navigation }) => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.restoreButton} onPress={loadStatus}>
-          <Text style={styles.restoreText}>
-            Restore Purchase / Check Status
-          </Text>
+        <TouchableOpacity
+          style={styles.restoreButton}
+          onPress={async () => {
+            setLoading(true);
+            await loadStatus();
+            setLoading(false);
+            showAlert(
+              'Status Refreshed',
+              'Your subscription status has been updated.',
+              'success',
+            );
+          }}
+        >
+          <Text style={styles.restoreText}>Refresh Subscription Status</Text>
         </TouchableOpacity>
+
+        {!route.params?.fromSettings && (
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={() => {
+              showAlert(
+                'Logout',
+                'Are you sure you want to logout?',
+                'warning',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Logout', onPress: logout, style: 'destructive' },
+                ],
+              );
+            }}
+          >
+            <MaterialIcons name="logout" size={20} color="#EF4444" />
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
+        )}
 
         {loading && (
           <View style={styles.loaderOverlay}>
@@ -174,29 +235,65 @@ const PremiumScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#111827' },
-  scrollContent: { padding: 20, alignItems: 'center' },
-  header: { alignItems: 'center', marginBottom: 30, marginTop: 20 },
-  title: { fontSize: 32, fontWeight: '800', color: '#FFFFFF', marginTop: 10 },
+  scrollContent: { padding: 20, paddingTop: 0, alignItems: 'center' },
+  header: { alignItems: 'center', marginBottom: 30 },
+  title: { fontSize: 32, fontWeight: '800', color: '#FFFFFF' },
   subtitle: {
     fontSize: 16,
     color: '#9CA3AF',
     textAlign: 'center',
     marginTop: 5,
   },
+  userContainer: {
+    marginTop: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  userText: {
+    color: '#D1D5DB',
+    fontSize: 14,
+    fontWeight: '500',
+  },
 
   statusContainer: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
     padding: 15,
     borderRadius: 12,
     marginBottom: 30,
     borderWidth: 1,
+    width: '100%',
+  },
+  expiredStatusContainer: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderColor: 'rgba(239, 68, 68, 0.5)',
   },
+  activeStatusContainer: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    borderColor: 'rgba(16, 185, 129, 0.5)',
+  },
   statusText: {
-    color: '#F87171',
     textAlign: 'center',
     fontSize: 14,
     lineHeight: 20,
+    color: '#F87171',
+  },
+  activeStatusText: {
+    color: '#10B981',
+    fontWeight: '700',
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  validityText: {
+    color: '#D1D5DB',
+    textAlign: 'center',
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  renewText: {
+    color: '#9CA3AF',
+    textAlign: 'center',
+    fontSize: 13,
   },
 
   sectionTitle: {
@@ -253,7 +350,6 @@ const styles = StyleSheet.create({
   restoreText: {
     color: '#6B7280',
     fontSize: 14,
-    textDecorationLine: 'underline',
   },
 
   loaderOverlay: {
@@ -261,6 +357,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 12,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+  },
+  logoutText: {
+    color: '#EF4444',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });
 

@@ -1,0 +1,26 @@
+﻿Alias name: my-key-alias
+Creation date: 14-Feb-2026
+Entry type: PrivateKeyEntry
+Certificate chain length: 1
+Certificate[1]:
+Owner: CN=BusinessManager, OU=Engineering, O=MyBiz, L=City, ST=State, C=IN
+Issuer: CN=BusinessManager, OU=Engineering, O=MyBiz, L=City, ST=State, C=IN
+Serial number: 60a2e11972286f10
+Valid from: Sat Feb 14 16:39:06 IST 2026 until: Wed Jul 02 16:39:06 IST 2053
+Certificate fingerprints:
+	 SHA1: FB:D3:26:55:58:6F:16:02:45:B9:63:5E:8B:1E:8B:59:EF:20:A5:9D
+	 SHA256: 58:A5:A2:17:ED:AF:76:2F:6B:FD:CC:92:EE:3C:91:A0:F8:BA:80:EC:9F:D7:DD:EE:53:09:C6:D0:AB:DC:24:DB
+Signature algorithm name: SHA256withRSA
+Subject Public Key Algorithm: 2048-bit RSA key
+Version: 3
+
+Extensions: 
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: 73 01 92 2F B5 CC 4E 1E   48 9C 57 F0 91 10 B0 26  s../..N.H.W....&
+0010: C3 07 9D DD                                        ....
+]
+]
+

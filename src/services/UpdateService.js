@@ -6,56 +6,47 @@ import ReactNativeBlobUtil from 'react-native-blob-util';
 const VERSION_JSON_URL =
   'https://raw.githubusercontent.com/areebmohd/BusinessManager/refs/heads/main/version.json';
 
-const checkUpdate = async (manual = false) => {
-  try {
-    console.log('Checking for updates...');
-    const response = await fetch(VERSION_JSON_URL, {
-      headers: {
-        'Cache-Control': 'no-cache',
-      },
-    });
+/**
+ * Checks for updates and returns the result.
+ * @returns {Promise<{updateAvailable: boolean, data: object | null, error: string | null}>}
+ */
+const checkUpdate = async () => {
+    try {
+        console.log('Checking for updates...');
+        const response = await fetch(VERSION_JSON_URL, {
+            headers: {
+                'Cache-Control': 'no-cache',
+            },
+        });
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch version info');
+        if (!response.ok) {
+            throw new Error('Failed to fetch version info');
+        }
+
+        const data = await response.json();
+        const currentVersion = DeviceInfo.getVersion();
+
+        // Simple version comparison logic (assumes semver or simpler)
+        const isUpdateAvailable = compareVersions(data.version, currentVersion) > 0;
+
+        console.log(
+            `Current: ${currentVersion}, Latest: ${data.version}, Update Available: ${isUpdateAvailable}`,
+        );
+
+        return {
+            updateAvailable: isUpdateAvailable,
+            data: isUpdateAvailable ? data : null,
+            error: null
+        };
+
+    } catch (error) {
+        console.error('Update check failed:', error);
+        return {
+            updateAvailable: false,
+            data: null,
+            error: error.message
+        };
     }
-
-    const data = await response.json();
-    const currentVersion = DeviceInfo.getVersion();
-
-    // Simple version comparison logic (assumes semver or simpler)
-    // You might want a more robust comparison if you use complex version strings
-    const isUpdateAvailable = compareVersions(data.version, currentVersion) > 0;
-
-    console.log(
-      `Current: ${currentVersion}, Latest: ${data.version}, Update Available: ${isUpdateAvailable}`,
-    );
-
-    if (isUpdateAvailable) {
-      Alert.alert(
-        'Update Available',
-        `A new version (${data.version}) is available.\n\n${
-          data.releaseNotes || 'Bug fixes and improvements.'
-        }`,
-        [
-          { text: 'Later', style: 'cancel' },
-          {
-            text: 'Update Now',
-            onPress: () => downloadAndInstall(data.downloadUrl),
-          },
-        ],
-      );
-    } else if (manual) {
-      Alert.alert('Up to Date', 'You are using the latest version.');
-    }
-  } catch (error) {
-    console.error('Update check failed:', error);
-    if (manual) {
-      Alert.alert(
-        'Error',
-        'Failed to check for updates. Please try again later.',
-      );
-    }
-  }
 };
 
 const compareVersions = (v1, v2) => {
@@ -107,4 +98,5 @@ const downloadAndInstall = async url => {
 
 export default {
   checkUpdate,
+  downloadAndInstall
 };
