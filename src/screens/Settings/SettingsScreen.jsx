@@ -17,6 +17,8 @@ import {
 } from '../../services/FirestoreService';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { checkSubscriptionStatus } from '../../services/SubscriptionService';
+import UpdateService from '../../services/UpdateService';
+import DeviceInfo from 'react-native-device-info';
 
 const SettingsScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
@@ -25,6 +27,7 @@ const SettingsScreen = ({ navigation }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [expiryDate, setExpiryDate] = useState(null);
   const { subscriptionStatus } = useAuth();
+  const [appVersion, setAppVersion] = useState('');
   const [businessDetails, setBusinessDetails] = useState({
     businessName: '',
     ownerName: '',
@@ -35,6 +38,8 @@ const SettingsScreen = ({ navigation }) => {
 
   useEffect(() => {
     if (!user) return;
+
+    setAppVersion(DeviceInfo.getVersion());
 
     // Load subscription details
     checkSubscriptionStatus(user.uid).then(status => {
@@ -110,6 +115,30 @@ const SettingsScreen = ({ navigation }) => {
             <Text style={styles.subHeader}>Account Information</Text>
           </View>
         </View>
+
+        {/* App Updates Section */}
+        <Text style={styles.sectionTitle}>App Updates</Text>
+        <View style={styles.section}>
+          <View style={styles.accountInfoRow}>
+            <View
+              style={[styles.iconContainer, { backgroundColor: '#e0f2f1' }]}
+            >
+              <MaterialIcons name="system-update" size={20} color="#00695c" />
+            </View>
+            <View>
+              <Text style={styles.infoText}>Current Version</Text>
+              <Text style={styles.subInfoText}>v{appVersion}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.updateButton}
+            onPress={() => UpdateService.checkUpdate(true)}
+          >
+            <Text style={styles.updateButtonText}>Check for Updates</Text>
+          </TouchableOpacity>
+        </View>
+
         <Text style={styles.sectionTitle}>Business Details</Text>
         <View style={styles.section}>
           <Text style={styles.label}>Business Name</Text>
@@ -220,6 +249,7 @@ const SettingsScreen = ({ navigation }) => {
                   ? expiryDate.toLocaleDateString('en-GB', {
                       day: 'numeric',
                       month: 'long',
+                      year: 'numeric',
                       year: 'numeric',
                     })
                   : 'Unknown'}
@@ -355,6 +385,24 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#111827',
     fontWeight: '600',
+  },
+  subInfoText: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  updateButton: {
+    backgroundColor: '#00695c',
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 10,
+    elevation: 2,
+  },
+  updateButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
   },
   logoutButton: {
     flexDirection: 'row',
