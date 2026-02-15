@@ -9,10 +9,14 @@ const usersCollection = firestore().collection('users');
  */
 export const startTrial = async (uid) => {
     try {
+        console.log(`Starting trial check for ${uid}`);
         const userDoc = usersCollection.doc(uid);
         const docSnap = await userDoc.get();
 
-        if (!docSnap.exists) {
+        const data = docSnap.data();
+        // Relaxed check: valid if doc doesn't exist OR subscription field is missing
+        if (!docSnap.exists || !data?.subscription) {
+            console.log(`Creating new trial for ${uid}`);
             // New user: Set trial
             const now = new Date();
             const expiryDate = new Date();
@@ -29,6 +33,9 @@ export const startTrial = async (uid) => {
                 },
                 createdAt: firestore.FieldValue.serverTimestamp()
             }, { merge: true });
+            console.log(`Trial created successfully for ${uid}`);
+        } else {
+            console.log(`User ${uid} already has a document/subscription.`);
         }
     } catch (error) {
         console.error("Error starting trial:", error);

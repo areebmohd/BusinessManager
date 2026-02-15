@@ -34,7 +34,7 @@ const EmailVerificationScreen = () => {
       await sendVerificationEmail();
       showAlert(
         'Success',
-        'Verification email sent! Please check your inbox.',
+        'Verification email sent! Please check your inbox and Spam/Junk folder.',
         'success',
       );
       setResendCooldown(60); // 60 seconds cooldown
@@ -70,7 +70,8 @@ const EmailVerificationScreen = () => {
         <Text style={styles.subtitle}>We've sent a verification email to:</Text>
         <Text style={styles.email}>{user?.email}</Text>
         <Text style={styles.instruction}>
-          Please check your inbox and click the link to verify your account.
+          Please check your inbox (and Spam/Junk folder) and click the link to
+          verify your account.
         </Text>
 
         <TouchableOpacity

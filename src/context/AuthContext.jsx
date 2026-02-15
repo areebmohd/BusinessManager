@@ -1,4 +1,10 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+} from 'react';
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
@@ -10,12 +16,21 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [initializing, setInitializing] = useState(true);
   const [subscriptionStatus, setSubscriptionStatus] = useState('loading');
+  const isSigningUp = useRef(false);
 
   // Handle user state changes
   async function onAuthStateChanged(user) {
     setUser(user);
 
     if (user) {
+      if (isSigningUp.current) {
+        console.log(
+          'User is signing up, skipping subscription check in onAuthStateChanged',
+        );
+        // We set it to active temporarily so they don't see the paywall during signup/verification
+        setSubscriptionStatus('active');
+        return;
+      }
       try {
         // Dynamic import to avoid circular dependency if possible, though strict requirement
         const {
@@ -59,6 +74,7 @@ export const AuthProvider = ({ children }) => {
 
   const signUpWithEmail = async (email, password) => {
     try {
+      isSigningUp.current = true;
       const userCredential = await auth().createUserWithEmailAndPassword(
         email,
         password,
@@ -67,6 +83,16 @@ export const AuthProvider = ({ children }) => {
       // Initialize Subscription (7-Day Trial)
       if (userCredential.user) {
         await startTrial(userCredential.user.uid);
+
+        // Force subscription check now that trial is created
+        console.log('Trial started, forcing subscription check');
+        const {
+          checkSubscriptionStatus,
+        } = require('../services/SubscriptionService');
+        const status = await checkSubscriptionStatus(userCredential.user.uid);
+        setSubscriptionStatus(
+          status.status === 'expired' ? 'expired' : 'active',
+        );
       }
 
       // Send verification email immediately after signup
@@ -76,13 +102,26 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error signing up with email: ', error);
       throw error;
+    } finally {
+      // Small delay to ensure state settles before releasing the lock?
+      // No, await startTrial and checkSubscriptionStatus should be enough.
+      isSigningUp.current = false;
     }
   };
 
   const sendVerificationEmail = async () => {
     try {
       if (auth().currentUser) {
+        console.log(
+          'Attempting to send verification email to:',
+          auth().currentUser.email,
+        );
         await auth().currentUser.sendEmailVerification();
+        console.log('Verification email sent successfully.');
+      } else {
+        console.warn(
+          'No current user found when trying to send verification email.',
+        );
       }
     } catch (error) {
       console.error('Error sending verification email: ', error);

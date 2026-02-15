@@ -25,6 +25,7 @@ const PremiumScreen = ({ navigation, route }) => {
   const { showAlert } = useAlert();
   const [loading, setLoading] = useState(false);
   const [expiryDate, setExpiryDate] = useState(null);
+  const [planType, setPlanType] = useState('trial');
   const [pricing, setPricing] = useState({
     monthly: { amount: 4900, display: '49', name: 'Monthly', currency: '₹' },
     yearly: { amount: 49000, display: '490', name: 'Yearly', currency: '₹' },
@@ -52,6 +53,9 @@ const PremiumScreen = ({ navigation, route }) => {
       const status = await checkSubscriptionStatus(user.uid);
       if (status.expiryDate) {
         setExpiryDate(status.expiryDate);
+      }
+      if (status.planType) {
+        setPlanType(status.planType);
       }
     }
   };
@@ -127,7 +131,9 @@ const PremiumScreen = ({ navigation, route }) => {
           {subscriptionStatus === 'active' ? (
             <View>
               <Text style={[styles.statusText, styles.activeStatusText]}>
-                Your premium plan is active.
+                {planType === 'trial'
+                  ? 'Your Free Trial is Active.'
+                  : 'Your Premium Plan is Active.'}
               </Text>
               {expiryDate && (
                 <Text style={styles.validityText}>
@@ -139,7 +145,14 @@ const PremiumScreen = ({ navigation, route }) => {
                   })}
                 </Text>
               )}
-              <Text style={styles.renewText}>You can extend it now.</Text>
+              {planType === 'trial' && (
+                <Text style={styles.renewText}>
+                  Upgrade now to keep using premium features.
+                </Text>
+              )}
+              {planType !== 'trial' && (
+                <Text style={styles.renewText}>You can extend it now.</Text>
+              )}
             </View>
           ) : (
             <Text style={styles.statusText}>
@@ -236,7 +249,7 @@ const PremiumScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#111827' },
   scrollContent: { padding: 20, paddingTop: 0, alignItems: 'center' },
-  header: { alignItems: 'center', marginBottom: 30 },
+  header: { alignItems: 'center', marginBottom: 30, marginTop: 20},
   title: { fontSize: 32, fontWeight: '800', color: '#FFFFFF' },
   subtitle: {
     fontSize: 16,

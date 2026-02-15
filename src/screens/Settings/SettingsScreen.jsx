@@ -27,6 +27,7 @@ const SettingsScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [expiryDate, setExpiryDate] = useState(null);
+  const [planType, setPlanType] = useState('trial');
   const { subscriptionStatus } = useAuth();
   const [appVersion, setAppVersion] = useState('');
   const [businessDetails, setBusinessDetails] = useState({
@@ -54,6 +55,9 @@ const SettingsScreen = ({ navigation }) => {
             ? status.expiryDate.toDate()
             : new Date(status.expiryDate),
         );
+      }
+      if (status.planType) {
+        setPlanType(status.planType);
       }
     });
 
@@ -238,7 +242,11 @@ const SettingsScreen = ({ navigation }) => {
             <View style={styles.premiumTitleRow}>
               <MaterialIcons name="diamond" size={24} color="#FFD700" />
               <Text style={styles.premiumTitle}>
-                {subscriptionStatus === 'active' ? 'Premium Plan' : 'Free Plan'}
+                {subscriptionStatus === 'active'
+                  ? planType === 'trial'
+                    ? 'Free Trial'
+                    : 'Premium Plan'
+                  : 'Free Plan'}
               </Text>
             </View>
             <View
