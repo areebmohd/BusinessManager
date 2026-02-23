@@ -80,20 +80,10 @@ export const AuthProvider = ({ children }) => {
         password,
       );
 
-      // Initialize Subscription (7-Day Trial)
-      if (userCredential.user) {
-        await startTrial(userCredential.user.uid);
-
-        // Force subscription check now that trial is created
-        console.log('Trial started, forcing subscription check');
-        const {
-          checkSubscriptionStatus,
-        } = require('../services/SubscriptionService');
-        const status = await checkSubscriptionStatus(userCredential.user.uid);
-        setSubscriptionStatus(
-          status.status === 'expired' ? 'expired' : 'active',
-        );
-      }
+      // Initialize Subscription logic is now handled automatically
+      // in checkSubscriptionStatus which is called by onAuthStateChanged.
+      // We keep isSigningUp = true to ensure the user isn't blocked by a paywall
+      // while the background processes finish.
 
       // Send verification email immediately after signup
       if (userCredential.user && !userCredential.user.emailVerified) {
@@ -190,7 +180,12 @@ export const AuthProvider = ({ children }) => {
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
       // Sign-in the user with the credential
-      return auth().signInWithCredential(googleCredential);
+      isSigningUp.current = true; // Use signing up flag to prevent paywall flashes for potential new users
+      try {
+        return await auth().signInWithCredential(googleCredential);
+      } finally {
+        isSigningUp.current = false;
+      }
     } catch (error) {
       console.error('Google Sign-In Error Details:', {
         code: error.code,

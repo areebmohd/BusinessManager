@@ -51,13 +51,19 @@ export const startTrial = async (uid) => {
 export const checkSubscriptionStatus = async (uid) => {
     try {
         const userDoc = await usersCollection.doc(uid).get();
-        if (!userDoc.exists) return { status: 'expired', daysLeft: 0 };
-
         const data = userDoc.data();
         
-        // Safety check to ensure data and subscription exist
-        if (!data || !data.subscription) {
-             return { status: 'expired', daysLeft: 0 };
+        // AUTO-START TRIAL: If user doc doesn't exist OR has no subscription record
+        if (!userDoc.exists || !data || !data.subscription) {
+            console.log(`[SubscriptionService] No subscription found for ${uid}, initializing trial...`);
+            await startTrial(uid);
+            // Return immediate trial status so UI doesn't flicker to paywall
+            return { 
+                status: 'trial', 
+                daysLeft: 7, 
+                expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 
+                planType: 'trial' 
+            };
         }
 
         const sub = data.subscription;

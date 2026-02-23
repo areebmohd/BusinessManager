@@ -7,7 +7,10 @@ const RAZORPAY_KEY_ID = 'rzp_live_SHFPsIE7Y1wllr'; // TODO: Replace with your ac
 
 export const getPricing = () => {
   const countryCode = RNLocalize.getCountry();
-  const isIndia = countryCode === 'IN';
+  const timezone = RNLocalize.getTimeZone();
+  const isIndia = countryCode === 'IN' || timezone === 'Asia/Kolkata';
+
+  console.log(`[PaymentService] Detection - Country: ${countryCode}, Timezone: ${timezone}, isIndia: ${isIndia}`);
 
   if (isIndia) {
     return {
