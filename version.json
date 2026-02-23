@@ -1,6 +1,6 @@
 {
-    "version": "1.0.2",
-    "build": 3,
-    "downloadUrl": "https://github.com/areebmohd/BusinessManager/releases/download/v1.0.2/BizManager.apk",
-    "releaseNotes": "razorpay payments added"
+    "version": "1.0.3",
+    "build": 4,
+    "downloadUrl": "https://github.com/areebmohd/BusinessManager/releases/download/v1.0.3/BizManager.apk",
+    "releaseNotes": "free trail bug fixed."
 }
